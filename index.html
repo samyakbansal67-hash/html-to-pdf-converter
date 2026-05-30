@@ -10,8 +10,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Unbounded:wght@200;300;400;500;600;700;800;900&family=Crimson+Pro:ital,wght@0,200;0,300;0,400;0,600;1,200;1,300&display=swap" rel="stylesheet">
 
-<!-- PDF engine -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- PDF engines — html2canvas for rendering, jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1143,8 +1144,8 @@
 
 </div>
 
-<!-- Hidden render -->
-<div id="renderTarget" style="position:absolute;left:-9999px;top:0;"></div>
+<!-- Hidden render — MUST be on-screen for html2canvas to capture -->
+<div id="renderTarget" style="position:fixed;left:0;top:0;z-index:-9999;opacity:0;pointer-events:none;width:794px;background:white;"></div>
 
 <script>
   // ──── STATE ────
@@ -1279,38 +1280,109 @@
     const orient   = document.getElementById('optOrientation').value;
     const quality  = parseInt(document.getElementById('optQuality').value);
 
-    await tick(0, 12, 'Reading HTML source…', 250);
-    await tick(12, 30, 'Rendering DOM tree…', 400);
+    await tick(0, 10, 'Reading HTML source…', 200);
 
+    // Create a sandboxed iframe for rendering (avoids CSS pollution from converter page)
     const target = document.getElementById('renderTarget');
-    target.innerHTML = htmlSrc;
+    target.innerHTML = '';
 
-    // Wait for images
-    const imgs = target.querySelectorAll('img');
-    if (imgs.length) {
-      await Promise.all([...imgs].map(img => img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })));
-    }
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'width:794px;border:none;min-height:100px;background:white;';
+    iframe.srcdoc = htmlSrc;
+    target.appendChild(iframe);
 
-    await tick(30, 55, 'Compositing pages…', 500);
+    await tick(10, 25, 'Loading content…', 200);
+
+    // Wait for iframe to load
+    await new Promise(resolve => {
+      iframe.onload = resolve;
+      // Fallback timeout
+      setTimeout(resolve, 5000);
+    });
+
+    await tick(25, 40, 'Waiting for resources…', 300);
+
+    // Wait for images inside iframe
+    try {
+      const iframeImgs = iframe.contentDocument.querySelectorAll('img');
+      if (iframeImgs.length) {
+        await Promise.all([...iframeImgs].map(img =>
+          img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+        ));
+      }
+    } catch(e) { /* cross-origin images, proceed anyway */ }
+
+    await tick(40, 55, 'Rendering canvas…', 200);
 
     pdfName = loadedFile ? loadedFile.name.replace(/\.html?$/i, '.pdf') : 'converted.pdf';
 
     try {
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: pdfName,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: quality, useCORS: true, allowTaint: true, logging: false, letterRendering: true },
-        jsPDF: { unit: 'mm', format: pageSize, orientation: orient },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      // Page dimensions in mm
+      const pageSizes = {
+        a4: [210, 297], letter: [215.9, 279.4], legal: [215.9, 355.6],
+        a3: [297, 420], a5: [148, 210]
       };
+      const [pageW, pageH] = orient === 'landscape' ? [...pageSizes[pageSize]].reverse() : pageSizes[pageSize];
+      const marginMM = 10;
+      const contentW = pageW - marginMM * 2;
+      const contentH = pageH - marginMM * 2;
 
-      await tick(55, 78, 'Generating PDF…', 600);
-      pdfBlob = await html2pdf().set(opt).from(target).outputPdf('blob');
-      await tick(78, 100, 'Done!', 300);
+      // Use html2canvas to capture the iframe body
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      const iframeBody = iframeDoc.body;
 
+      // Set explicit width on iframe body for consistent rendering
+      iframeBody.style.width = '774px'; // 794px - 20px padding
+      iframeBody.style.padding = '10px';
+      iframeBody.style.margin = '0';
+      iframeBody.style.background = 'white';
+
+      const canvas = await html2canvas(iframeBody, {
+        scale: quality,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: 794,
+        windowWidth: 794,
+      });
+
+      await tick(55, 75, 'Splitting into pages…', 300);
+
+      // Now manually split the canvas into pages using jsPDF
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: pageSize, orientation: orient });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const imgW = contentW;
+      const imgH = (canvas.height * contentW) / canvas.width;
+
+      let heightLeft = imgH;
+      let position = marginMM;
+      let page = 1;
+
+      // First page
+      pdf.addImage(imgData, 'JPEG', marginMM, marginMM, imgW, imgH);
+      heightLeft -= contentH;
+
+      await tick(75, 85, `Page ${page} rendered…`, 100);
+
+      // Additional pages
+      while (heightLeft > 0) {
+        page++;
+        pdf.addPage();
+        position = marginMM - (page - 1) * contentH;
+        pdf.addImage(imgData, 'JPEG', marginMM, position, imgW, imgH);
+        heightLeft -= contentH;
+
+        await tick(75 + (page * 2), 85 + (page * 2), `Page ${page} rendered…`, 50);
+      }
+
+      await tick(90, 100, 'Done!', 200);
+
+      pdfBlob = pdf.output('blob');
       showResult();
-      toast('PDF generated! 🎉', 'ok');
+      toast(`PDF generated — ${page} page${page>1?'s':''}! 🎉`, 'ok');
       fireConfetti();
     } catch (err) {
       console.error(err);
