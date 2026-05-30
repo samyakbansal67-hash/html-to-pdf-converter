@@ -1,4 +1,12 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/html-to-pdf", "destination": "/apps/html-to-pdf/index.html" },
+    { "source": "/html-to-pdf/", "destination": "/apps/html-to-pdf/index.html" },
+    { "source": "/markdox", "destination": "/apps/markdox/index.html" },
+    { "source": "/markdox/", "destination": "/apps/markdox/index.html" },
+    { "source": "/reporead", "destination": "/apps/reporead/index.html" },
+    { "source": "/reporead/", "destination": "/apps/reporead/index.html" }
+  ]
 }
