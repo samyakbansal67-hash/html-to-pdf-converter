@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RepoRead — Instant GitHub Repo Breakdown</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+ *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+ :root {
+  --bg: #0e0e0e;
+  --surface: #171717;
+  --surface-2: #1f1f1f;
+  --border: #2a2a2a;
+  --border-hover: #3a3a3a;
+  --text: #d4d4d4;
+  --text-dim: #666;
+  --accent: #e8a44a;
+  --accent-soft: rgba(232,164,74,0.08);
+  --accent-border: rgba(232,164,74,0.25);
+  --green: #4ade80;
+  --green-soft: rgba(74,222,128,0.08);
+  --green-border: rgba(74,222,128,0.25);
+  --red: #f87171;
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+  --cyan: #22d3ee;
+  --radius: 10px;
+ }
+
+ body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+ }
+
+ .container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+ }
+
+ /* ── Header ── */
+ .header {
+  margin-bottom: 28px;
+  animation: fadeIn 0.5s ease both;
+ }
+
+ .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+ }
+
+ .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+ .header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+ }
+
+ .header h1 span { color: var(--text-dim); font-weight: 400; }
+ .header p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+ /* ── Input ── */
+ .input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  animation: fadeIn 0.5s ease 0.05s both;
+ }
+
+ .url-input {
+  flex: 1;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  transition: border-color 0.2s;
+ }
+
+ .url-input:focus { outline: none; border-color: var(--accent-border); }
+ .url-input::placeholder { color: var(--text-dim); opacity: 0.35; }
+
+ .go-btn {
+  padding: 11px 20px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #1a1a1a;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+ }
+
+ .go-btn:hover { opacity: 0.9; }
+ .go-btn:active { transform: scale(0.97); }
+ .go-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+ .btn-spinner {
+  display: none;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-top-color: #1a1a1a;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+ }
+
+ .go-btn.loading .btn-spinner { display: block; }
+ .go-btn.loading .btn-label { display: none; }
+
+ @keyframes spin { to { transform: rotate(360deg); } }
+
+ /* ── Examples ── */
+ .examples {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  animation: fadeIn 0.5s ease 0.1s both;
+ }
+
+ .example-chip {
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+ }
+
+ .example-chip:hover { border-color: var(--border-hover); color: var(--text); }
+
+ /* ── Error ── */
+ .error-msg {
+  display: none;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: rgba(248,113,113,0.06);
+  border: 1px solid rgba(248,113,113,0.2);
+  color: var(--red);
+  font-size: 13px;
+  margin-bottom: 16px;
+ }
+
+ .error-msg.visible { display: block; }
+
+ /* ── Results ── */
+ .results { display: none; animation: fadeIn 0.4s ease both; }
+ .results.visible { display: block; }
+
+ /* Repo Header */
+ .repo-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+ }
+
+ .repo-avatar {
+  width: 44px; height: 44px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow: hidden;
+ }
+
+ .repo-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+
+ .repo-info { flex: 1; }
+
+ .repo-name {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+ }
+
+ .repo-name a { color: var(--accent); text-decoration: none; }
+ .repo-name a:hover { text-decoration: underline; }
+
+ .repo-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 8px; }
+
+ .repo-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+ }
+
+ .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-dim);
+ }
+
+ .meta-item .emoji { font-size: 13px; }
+
+ /* Stats Grid */
+ .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+ }
+
+ .stat-card {
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+ }
+
+ .stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  font-variant-numeric: tabular-nums;
+ }
+
+ .stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+ }
+
+ /* Section Card */
+ .section-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+ }
+
+ .section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+ }
+
+ /* Language Bars */
+ .lang-list { display: flex; flex-direction: column; gap: 8px; }
+
+ .lang-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+ }
+
+ .lang-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+ .lang-name { font-size: 13px; font-weight: 500; min-width: 90px; }
+ .lang-bar-wrap { flex: 1; height: 6px; border-radius: 100px; background: var(--surface-2); overflow: hidden; }
+ .lang-bar { height: 100%; border-radius: 100px; transition: width 0.6s ease; }
+ .lang-pct { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); min-width: 40px; text-align: right; }
+
+ /* Contributors */
+ .contrib-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+ }
+
+ .contrib-avatar {
+  width: 34px; height: 34px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.2s;
+ }
+
+ .contrib-avatar:hover { transform: scale(1.1); border-color: var(--border-hover); }
+ .contrib-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+ /* Activity */
+ .activity-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 80px;
+  padding-top: 8px;
+ }
+
+ .activity-col {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.4s ease, background 0.2s;
+  cursor: pointer;
+  position: relative;
+  min-width: 0;
+ }
+
+ .activity-col:hover { filter: brightness(1.3); }
+
+ .activity-label {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-dim);
+ }
+
+ /* File tree */
+ .file-tree { font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.8; }
+ .file-tree .dir { color: var(--accent); font-weight: 500; }
+ .file-tree .file { color: var(--text-dim); }
+ .file-tree .count { color: var(--text-dim); opacity: 0.5; font-size: 10px; }
+
+ /* Toast */
+ .toast-bar {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  padding: 8px 20px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); font-size: 12px; font-weight: 500;
+  z-index: 10000; opacity: 0; transition: all 0.3s ease;
+  pointer-events: none; white-space: nowrap;
+ }
+ .toast-bar.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+ .toast-bar.ok { border-color: var(--green-border); }
+ .toast-bar.err { border-color: rgba(248,113,113,0.3); }
+
+ /* Footer */
+ .footer { text-align: center; margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); }
+ .footer p { font-size: 12px; color: var(--text-dim); }
+
+ @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+ @media (max-width: 600px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .input-row { flex-direction: column; }
+  .repo-header { flex-direction: column; }
+ }
+
+ ::-webkit-scrollbar { width: 4px; }
+ ::-webkit-scrollbar-track { background: var(--surface); }
+ ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 100px; }
+</style>
+</head>
+<body>
+
+<div class="toast-bar" id="toastBar"></div>
+
+<div class="container">
+ <header class="header">
+  <div class="badge"><span class="dot"></span>Free · No Signup · Client-side</div>
+  <h1>RepoRead <span>→</span></h1>
+  <p>Paste a GitHub repo URL, get an instant breakdown — languages, contributors, activity, and file structure. All fetched directly from GitHub's public API.</p>
+ </header>
+
+ <div class="input-row">
+  <input class="url-input" id="urlInput" type="text" placeholder="https://github.com/user/repo" spellcheck="false" autocomplete="off">
+  <button class="go-btn" id="goBtn" onclick="analyzeRepo()">
+   <span class="btn-label">Analyze</span>
+   <div class="btn-spinner"></div>
+  </button>
+ </div>
+
+ <div class="examples">
+  <button class="example-chip" onclick="loadExample('torvalds/linux')">torvalds/linux</button>
+  <button class="example-chip" onclick="loadExample('facebook/react')">facebook/react</button>
+  <button class="example-chip" onclick="loadExample('denoland/deno')">denoland/deno</button>
+  <button class="example-chip" onclick="loadExample('vercel/next.js')">vercel/next.js</button>
+ </div>
+
+ <div class="error-msg" id="errorMsg"></div>
+
+ <div class="results" id="results">
+  <!-- Repo Header -->
+  <div class="repo-header" id="repoHeader"></div>
+
+  <!-- Stats -->
+  <div class="stats-grid" id="statsGrid"></div>
+
+  <!-- Languages -->
+  <div class="section-card" id="langSection">
+   <div class="section-title">Languages</div>
+   <div class="lang-list" id="langList"></div>
+  </div>
+
+  <!-- Contributors -->
+  <div class="section-card" id="contribSection">
+   <div class="section-title">Top Contributors</div>
+   <div class="contrib-grid" id="contribGrid"></div>
+  </div>
+
+  <!-- Activity -->
+  <div class="section-card" id="activitySection">
+   <div class="section-title">Commit Activity (past year)</div>
+   <div class="activity-bars" id="activityBars"></div>
+   <div class="activity-label" id="activityLabel"></div>
+  </div>
+
+  <!-- File Tree -->
+  <div class="section-card" id="treeSection">
+   <div class="section-title">File Structure</div>
+   <div class="file-tree" id="fileTree"></div>
+  </div>
+ </div>
+
+ <div class="footer"><p>RepoRead — 100% free · uses GitHub public API</p></div>
+</div>
+
+<script>
+ const urlInput = document.getElementById('urlInput');
+ const goBtn = document.getElementById('goBtn');
+ const errorMsg = document.getElementById('errorMsg');
+ const results = document.getElementById('results');
+
+ const LANG_COLORS = {
+  'JavaScript': '#f1e05a', 'TypeScript': '#3178c6', 'Python': '#3572A5', 'Java': '#b07219',
+  'Go': '#00ADD8', 'Rust': '#dea584', 'C': '#555555', 'C++': '#f34b7d', 'C#': '#178600',
+  'Ruby': '#701516', 'PHP': '#4F5D95', 'Swift': '#F05138', 'Kotlin': '#A97BFF', 'Dart': '#00B4AB',
+  'Shell': '#89e051', 'HTML': '#e34c26', 'CSS': '#563d7c', 'SCSS': '#c6538c', 'Vue': '#41b883',
+  'Svelte': '#ff3e00', 'Jupyter Notebook': '#DA5B0B', 'Lua': '#000080', 'Zig': '#ec915c',
+  'Elixir': '#6e4a7e', 'Haskell': '#5e5086', 'Scala': '#c22d40', 'R': '#198CE7',
+  'Objective-C': '#438eff', 'Perl': '#0298c3', 'Clojure': '#db5855', 'Nix': '#7e7eff',
+ };
+
+ urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') analyzeRepo(); });
+
+ function loadExample(repo) {
+  urlInput.value = `https://github.com/${repo}`;
+  analyzeRepo();
+ }
+
+ function parseRepoURL(url) {
+  url = url.trim().replace(/\/+$/, '');
+  const m = url.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+  if (!m) return null;
+  return { owner: m[1], repo: m[2].replace(/\.git$/, '') };
+ }
+
+ async function analyzeRepo() {
+  const url = urlInput.value;
+  const parsed = parseRepoURL(url);
+
+  if (!parsed) {
+   errorMsg.textContent = 'Enter a valid GitHub URL like https://github.com/user/repo';
+   errorMsg.classList.add('visible');
+   return;
+  }
+
+  errorMsg.classList.remove('visible');
+  results.classList.remove('visible');
+  goBtn.classList.add('loading');
+  goBtn.disabled = true;
+
+  const { owner, repo } = parsed;
+  const base = `https://api.github.com/repos/${owner}/${repo}`;
+  const headers = { 'Accept': 'application/vnd.github.v3+json' };
+
+  try {
+   // Fetch repo info + languages + contributors in parallel
+   const [repoRes, langRes, contribRes] = await Promise.all([
+    fetch(base, { headers }),
+    fetch(`${base}/languages`, { headers }),
+    fetch(`${base}/contributors?per_page=24`, { headers }),
+   ]);
+
+   if (!repoRes.ok) throw new Error(`Repo not found or rate-limited (${repoRes.status})`);
+
+   const repoData = await repoRes.json();
+   const langData = await langRes.json();
+   const contribData = await contribRes.ok ? await contribRes.json() : [];
+
+   // Fetch commit activity (weekly)
+   let activityData = [];
+   try {
+    const actRes = await fetch(`${base}/stats/commit_activity`, { headers });
+    if (actRes.ok) activityData = await actRes.json();
+   } catch(e) {}
+
+   // Fetch tree
+   let treeData = { tree: [] };
+   try {
+    const treeRes = await fetch(`${base}/git/trees/${repoData.default_branch}?recursive=1`, { headers });
+    if (treeRes.ok) treeData = await treeRes.json();
+   } catch(e) {}
+
+   // Render everything
+   renderRepo(repoData);
+   renderStats(repoData);
+   renderLanguages(langData);
+   renderContributors(contribData);
+   renderActivity(activityData);
+   renderTree(treeData.tree || [], owner, repo);
+
+   results.classList.add('visible');
+   toast('Repo analyzed!', 'ok');
+
+  } catch (err) {
+   errorMsg.textContent = err.message;
+   errorMsg.classList.add('visible');
+  }
+
+  goBtn.classList.remove('loading');
+  goBtn.disabled = false;
+ }
+
+ function renderRepo(d) {
+  document.getElementById('repoHeader').innerHTML = `
+   <div class="repo-avatar"><img src="${d.owner.avatar_url}" alt="${d.owner.login}"></div>
+   <div class="repo-info">
+    <div class="repo-name"><a href="${d.html_url}" target="_blank">${d.full_name}</a></div>
+    <div class="repo-desc">${d.description || 'No description'}</div>
+    <div class="repo-meta">
+     <span class="meta-item"><span class="emoji">⭐</span>${formatNum(d.stargazers_count)}</span>
+     <span class="meta-item"><span class="emoji">🍴</span>${formatNum(d.forks_count)}</span>
+     <span class="meta-item"><span class="emoji">👁️</span>${formatNum(d.watchers_count)}</span>
+     <span class="meta-item"><span class="emoji">📦</span>${d.size ? (d.size > 1024 ? (d.size/1024).toFixed(1)+'MB' : d.size+'KB') : '?'}</span>
+     <span class="meta-item"><span class="emoji">📅</span>${new Date(d.created_at).toLocaleDateString()}</span>
+     ${d.license ? `<span class="meta-item"><span class="emoji">⚖️</span>${d.license.spdx_id}</span>` : ''}
+    </div>
+   </div>
+  `;
+ }
+
+ function renderStats(d) {
+  const age = Math.floor((Date.now() - new Date(d.created_at)) / (1000*60*60*24));
+  const ageStr = age > 365 ? `${(age/365).toFixed(1)}y` : `${age}d`;
+  document.getElementById('statsGrid').innerHTML = `
+   <div class="stat-card"><div class="stat-value">${formatNum(d.stargazers_count)}</div><div class="stat-label">Stars</div></div>
+   <div class="stat-card"><div class="stat-value">${formatNum(d.forks_count)}</div><div class="stat-label">Forks</div></div>
+   <div class="stat-card"><div class="stat-value">${formatNum(d.open_issues_count)}</div><div class="stat-label">Issues</div></div>
+   <div class="stat-card"><div class="stat-value">${ageStr}</div><div class="stat-label">Age</div></div>
+  `;
+ }
+
+ function renderLanguages(langData) {
+  const entries = Object.entries(langData);
+  if (!entries.length) { document.getElementById('langSection').style.display='none'; return; }
+  document.getElementById('langSection').style.display='';
+
+  const total = entries.reduce((s, [,v]) => s+v, 0);
+  document.getElementById('langList').innerHTML = entries.map(([name, bytes]) => {
+   const pct = ((bytes/total)*100).toFixed(1);
+   const color = LANG_COLORS[name] || '#888';
+   return `<div class="lang-row">
+    <div class="lang-dot" style="background:${color}"></div>
+    <div class="lang-name">${name}</div>
+    <div class="lang-bar-wrap"><div class="lang-bar" style="width:${pct}%;background:${color}"></div></div>
+    <div class="lang-pct">${pct}%</div>
+   </div>`;
+  }).join('');
+ }
+
+ function renderContributors(contribs) {
+  if (!contribs.length) { document.getElementById('contribSection').style.display='none'; return; }
+  document.getElementById('contribSection').style.display='';
+  document.getElementById('contribGrid').innerHTML = contribs.slice(0, 20).map(c =>
+   `<a class="contrib-avatar" href="${c.html_url}" target="_blank" title="${c.login} (${c.contributions})"><img src="${c.avatar_url}&s=68" alt="${c.login}"></a>`
+  ).join('');
+ }
+
+ function renderActivity(data) {
+  if (!data.length) { document.getElementById('activitySection').style.display='none'; return; }
+  document.getElementById('activitySection').style.display='';
+
+  // data is array of { week, days:[7 counts], total }
+  const weeks = data.slice(-26); // last 26 weeks
+  const maxTotal = Math.max(...weeks.map(w => w.total), 1);
+
+  const barsHTML = weeks.map((w, i) => {
+   const h = Math.max((w.total / maxTotal) * 100, 2);
+   const opacity = 0.3 + (w.total / maxTotal) * 0.7;
+   const date = new Date(w.week * 1000);
+   const label = date.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+   return `<div class="activity-col" style="height:${h}%;background:var(--accent);opacity:${opacity}" title="${label}: ${w.total} commits"></div>`;
+  }).join('');
+
+  document.getElementById('activityBars').innerHTML = barsHTML;
+
+  const firstDate = new Date(weeks[0].week * 1000).toLocaleDateString('en', { month: 'short' });
+  const lastDate = new Date(weeks[weeks.length-1].week * 1000).toLocaleDateString('en', { month: 'short', year: 'numeric' });
+  document.getElementById('activityLabel').innerHTML = `<span>${firstDate}</span><span>${lastDate}</span>`;
+ }
+
+ function renderTree(tree, owner, repo) {
+  if (!tree.length) { document.getElementById('treeSection').style.display='none'; return; }
+  document.getElementById('treeSection').style.display='';
+
+  // Group by top-level directory
+  const dirs = {};
+  const rootFiles = [];
+  tree.forEach(item => {
+   const parts = item.path.split('/');
+   if (parts.length === 1) {
+    rootFiles.push(item);
+   } else {
+    const dir = parts[0];
+    if (!dirs[dir]) dirs[dir] = 0;
+    dirs[dir]++;
+   }
+  });
+
+  // Sort dirs by count desc, take top 12
+  const sortedDirs = Object.entries(dirs).sort((a,b) => b[1]-a[1]).slice(0, 12);
+  const rootFileNames = rootFiles.slice(0, 8).map(f => f.path);
+
+  const dirHTML = sortedDirs.map(([name, count]) =>
+   `<div><span class="dir">📁 ${name}/</span> <span class="count">(${count} files)</span></div>`
+  ).join('');
+
+  const fileHTML = rootFileNames.map(name =>
+   `<div><span class="file">  {rootFiles.length > 8 ? '└─' : '├─'} ${name}</span></div>`
+  ).join('');
+
+  document.getElementById('fileTree').innerHTML = dirHTML + fileHTML +
+   (tree.length > 100 ? `<div style="margin-top:8px;color:var(--text-dim);font-size:10px">… and ${tree.length - 100} more files</div>` : '');
+ }
+
+ function formatNum(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return String(n);
+ }
+
+ function toast(msg, type) {
+  const t = document.getElementById('toastBar');
+  t.textContent = msg;
+  t.className = 'toast-bar ' + (type||'');
+  requestAnimationFrame(() => { t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2800); });
+ }
+</script>
+</body>
+</html>
