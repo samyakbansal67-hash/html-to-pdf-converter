@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiffSnap — Visual JSON/YAML Diff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0e0e;--surface:#171717;--border:#2a2a2a;
+  --text:#d4d4d4;--text-dim:#666;--accent:#4ade80;
+  --accent-soft:rgba(74,222,128,0.08);--accent-border:rgba(74,222,128,0.25);
+  --red:#f87171;--red-soft:rgba(248,113,113,0.10);--red-border:rgba(248,113,113,0.25);
+  --yellow:#facc15;--yellow-soft:rgba(250,204,21,0.10);--yellow-border:rgba(250,204,21,0.25);
+  --green:#4ade80;--green-soft:rgba(74,222,128,0.10);--green-border:rgba(74,222,128,0.25);
+  --radius:10px;--radius-sm:6px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:32px 24px 80px}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{font-size:20px;font-weight:700;letter-spacing:-0.02em}
+.logo span{color:var(--accent)}
+.header-sub{font-size:12px;color:var(--text-dim)}
+.header-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--accent-border);color:var(--accent)}
+.btn-primary{background:var(--accent);color:#0e0e0e;border-color:var(--accent);font-weight:600}
+.btn-primary:hover{background:#3bcb72;border-color:#3bcb72;color:#0e0e0e}
+.btn-danger{color:var(--red);border-color:var(--red-border)}
+.btn-danger:hover{background:var(--red-soft)}
+
+/* Format toggles */
+.format-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.format-label{font-size:11px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:0.05em}
+.format-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.format-btn{padding:6px 14px;font-size:12px;font-weight:500;background:transparent;color:var(--text-dim);border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.format-btn.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.format-btn:not(.active):hover{color:var(--text)}
+
+/* Panels */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:700px){.panels{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+.panel-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.04em}
+.panel-header .label-dot{width:6px;height:6px;border-radius:50%;margin-right:6px;display:inline-block}
+.panel-header .left-dot{background:var(--red)}
+.panel-header .right-dot{background:var(--green)}
+textarea{width:100%;min-height:280px;padding:14px;background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.65;resize:vertical;outline:none;tab-size:2}
+textarea::placeholder{color:#444}
+textarea:focus{background:rgba(255,255,255,0.01)}
+
+/* Summary bar */
+.summary-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;flex-wrap:wrap}
+.summary-item{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500}
+.summary-dot{width:8px;height:8px;border-radius:50%}
+.summary-dot.added{background:var(--green)}
+.summary-dot.removed{background:var(--red)}
+.summary-dot.changed{background:var(--yellow)}
+.summary-dot.unchanged{background:var(--text-dim)}
+.summary-count{font-family:'JetBrains Mono',monospace;font-weight:600}
+.summary-label{color:var(--text-dim)}
+.summary-spacer{flex:1}
+.summary-identical{font-size:12px;color:var(--green);font-weight:600}
+
+/* Diff output */
+.diff-output{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.diff-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.04em}
+.diff-content{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;max-height:500px;overflow:auto;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.diff-line{display:flex;padding:2px 14px;border-left:3px solid transparent;transition:background .1s}
+.diff-line:hover{background:rgba(255,255,255,0.02)}
+.diff-line.added{background:var(--green-soft);border-left-color:var(--green)}
+.diff-line.removed{background:var(--red-soft);border-left-color:var(--red)}
+.diff-line.changed{background:var(--yellow-soft);border-left-color:var(--yellow)}
+.diff-line .line-num{width:40px;color:#444;text-align:right;margin-right:14px;user-select:none;flex-shrink:0}
+.diff-line .line-prefix{width:14px;flex-shrink:0;font-weight:600}
+.diff-line.added .line-prefix{color:var(--green)}
+.diff-line.removed .line-prefix{color:var(--red)}
+.diff-line.changed .line-prefix{color:var(--yellow)}
+.diff-line .line-path{color:var(--text-dim);margin-right:8px}
+.diff-line .line-value{color:var(--text);word-break:break-all}
+.diff-line.added .line-value .val-new{color:var(--green)}
+.diff-line.removed .line-value .val-old{color:var(--red)}
+.diff-line.changed .line-value .val-old{color:var(--red);text-decoration:line-through;opacity:0.7}
+.diff-line.changed .line-value .val-arrow{color:var(--text-dim);margin:0 6px}
+.diff-line.changed .line-value .val-new{color:var(--green)}
+
+.empty-state{padding:48px 24px;text-align:center;color:var(--text-dim);font-size:13px}
+.empty-state .empty-icon{font-size:28px;margin-bottom:8px;opacity:0.4}
+.empty-state p{margin-bottom:4px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface);border:1px solid var(--accent-border);color:var(--accent);padding:10px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;opacity:0;transition:all .3s ease;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Scrollbar */
+.diff-content::-webkit-scrollbar{width:6px;height:6px}
+.diff-content::-webkit-scrollbar-track{background:transparent}
+.diff-content::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+.diff-content::-webkit-scrollbar-thumb:hover{background:#444}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panels,.summary-bar,.diff-output{animation:fadeIn .4s ease both}
+.summary-bar{animation-delay:.05s}
+.diff-output{animation-delay:.1s}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-left">
+      <div>
+        <div class="logo">Diff<span>Snap</span></div>
+        <div class="header-sub">Visual JSON &amp; YAML diff — 100% client-side</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="swapPanels()" title="Swap left &amp; right">⇄ Swap</button>
+      <button class="btn" onclick="copyDiff()" title="Copy diff as text">📋 Copy Diff</button>
+      <button class="btn btn-danger" onclick="clearAll()" title="Clear both panels">✕ Clear</button>
+      <button class="btn btn-primary" onclick="runDiff()">▶ Compare</button>
+    </div>
+  </div>
+
+  <div class="format-bar">
+    <span class="format-label">Input format</span>
+    <div class="format-toggle">
+      <button class="format-btn active" data-format="json" onclick="setFormat('json')">JSON</button>
+      <button class="format-btn" data-format="yaml" onclick="setFormat('yaml')">YAML</button>
+    </div>
+    <span class="format-label" style="margin-left:auto">Press Ctrl+Enter to compare</span>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-header"><span><span class="label-dot left-dot"></span>Left (Original)</span></div>
+      <textarea id="leftInput" placeholder="Paste JSON or YAML here…" spellcheck="false"></textarea>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span><span class="label-dot right-dot"></span>Right (Modified)</span></div>
+      <textarea id="rightInput" placeholder="Paste JSON or YAML here…" spellcheck="false"></textarea>
+    </div>
+  </div>
+
+  <div class="summary-bar" id="summaryBar" style="display:none">
+    <div class="summary-item"><span class="summary-dot added"></span><span class="summary-count" id="addedCount">0</span><span class="summary-label">added</span></div>
+    <div class="summary-item"><span class="summary-dot removed"></span><span class="summary-count" id="removedCount">0</span><span class="summary-label">removed</span></div>
+    <div class="summary-item"><span class="summary-dot changed"></span><span class="summary-count" id="changedCount">0</span><span class="summary-label">changed</span></div>
+    <div class="summary-item"><span class="summary-dot unchanged"></span><span class="summary-count" id="unchangedCount">0</span><span class="summary-label">unchanged</span></div>
+    <div class="summary-spacer"></div>
+    <span class="summary-identical" id="identicalMsg" style="display:none">✓ Identical</span>
+  </div>
+
+  <div class="diff-output" id="diffOutput" style="display:none">
+    <div class="diff-header">
+      <span>Diff Result</span>
+      <span id="diffLineCount"></span>
+    </div>
+    <div class="diff-content" id="diffContent"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// --- Minimal YAML parser (handles common YAML structures) ---
+function parseYaml(text) {
+  const lines = text.split('\n');
+  const result = {};
+  const stack = [{ obj: result, indent: -1 }];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trimStart();
+    if (!trimmed || trimmed.startsWith('#')) { i++; continue; }
+
+    const indent = line.length - line.trimStart().length;
+    const match = trimmed.match(/^(- )?(.+?):\s*(.*)$/);
+
+    if (match) {
+      const isArrItem = !!match[1];
+      const key = match[2].replace(/^["']|["']$/g, '');
+      let val = match[3].trim();
+
+      // Pop stack back to current indent level
+      while (stack.length > 1 && stack[stack.length - 1].indent >= indent) {
+        stack.pop();
+      }
+      const parent = stack[stack.length - 1].obj;
+
+      if (val === '' || val === '|' || val === '>') {
+        // Block or nested
+        if (isArrItem) {
+          if (!Array.isArray(parent)) {
+            // wrap
+          }
+          const child = {};
+          if (Array.isArray(parent)) parent.push(child);
+          else parent[key] = child;
+          stack.push({ obj: Array.isArray(parent) ? parent[parent.length-1] : parent[key], indent });
+        } else {
+          if (Array.isArray(parent)) {
+            const child = {};
+            parent.push(child);
+            stack.push({ obj: child, indent });
+          } else {
+            parent[key] = {};
+            stack.push({ obj: parent[key], indent });
+          }
+        }
+      } else {
+        // Inline value
+        val = val.replace(/^["']|["']$/g, '');
+        if (val === 'true') val = true;
+        else if (val === 'false') val = false;
+        else if (val === 'null' || val === '~') val = null;
+        else if (!isNaN(val) && val !== '') val = Number(val);
+
+        if (Array.isArray(parent)) {
+          const entry = {};
+          entry[key] = val;
+          parent.push(entry);
+        } else {
+          parent[key] = val;
+        }
+      }
+    } else if (trimmed.startsWith('- ')) {
+      const val = trimmed.slice(2).trim().replace(/^["']|["']$/g, '');
+      while (stack.length > 1 && stack[stack.length - 1].indent >= indent) stack.pop();
+      const parent = stack[stack.length - 1].obj;
+      if (Array.isArray(parent)) {
+        let parsed = val;
+        if (parsed === 'true') parsed = true;
+        else if (parsed === 'false') parsed = false;
+        else if (parsed === 'null' || parsed === '~') parsed = null;
+        else if (!isNaN(parsed) && parsed !== '') parsed = Number(parsed);
+        parent.push(parsed);
+      }
+    }
+    i++;
+  }
+  return result;
+}
+
+function tryParse(text, format) {
+  text = text.trim();
+  if (!text) return {};
+  if (format === 'yaml') {
+    try { return parseYaml(text); }
+    catch(e) { throw new Error('Invalid YAML: ' + e.message); }
+  }
+  try { return JSON.parse(text); }
+  catch(e) { throw new Error('Invalid JSON: ' + e.message); }
+}
+
+// --- Deep diff engine ---
+function deepDiff(obj1, obj2, path) {
+  const results = [];
+  if (!path) path = '';
+
+  const allKeys = new Set([...Object.keys(obj1 || {}), ...Object.keys(obj2 || {})]);
+  for (const key of allKeys) {
+    const p = path ? path + '.' + key : key;
+    const in1 = obj1 && key in obj1;
+    const in2 = obj2 && key in obj2;
+    const v1 = in1 ? obj1[key] : undefined;
+    const v2 = in2 ? obj2[key] : undefined;
+
+    if (in1 && !in2) {
+      if (typeof v1 === 'object' && v1 !== null) {
+        flattenPaths(v1, p).forEach(fp => results.push({ type: 'removed', path: fp.path, oldVal: fp.val }));
+      } else {
+        results.push({ type: 'removed', path: p, oldVal: v1 });
+      }
+    } else if (!in1 && in2) {
+      if (typeof v2 === 'object' && v2 !== null) {
+        flattenPaths(v2, p).forEach(fp => results.push({ type: 'added', path: fp.path, newVal: fp.val }));
+      } else {
+        results.push({ type: 'added', path: p, newVal: v2 });
+      }
+    } else if (in1 && in2) {
+      if (typeof v1 === 'object' && v1 !== null && typeof v2 === 'object' && v2 !== null) {
+        if (Array.isArray(v1) !== Array.isArray(v2)) {
+          results.push({ type: 'changed', path: p, oldVal: stringify(v1), newVal: stringify(v2) });
+        } else {
+          results.push(...deepDiff(v1, v2, p));
+        }
+      } else if (typeof v1 === 'object' && v1 !== null) {
+        results.push({ type: 'changed', path: p, oldVal: stringify(v1), newVal: v2 });
+      } else if (typeof v2 === 'object' && v2 !== null) {
+        results.push({ type: 'changed', path: p, oldVal: v1, newVal: stringify(v2) });
+      } else if (v1 !== v2) {
+        results.push({ type: 'changed', path: p, oldVal: v1, newVal: v2 });
+      } else {
+        results.push({ type: 'unchanged', path: p, val: v1 });
+      }
+    }
+  }
+  return results;
+}
+
+function flattenPaths(obj, prefix) {
+  const results = [];
+  if (typeof obj !== 'object' || obj === null) {
+    results.push({ path: prefix, val: obj });
+    return results;
+  }
+  if (Array.isArray(obj)) {
+    obj.forEach((item, i) => {
+      results.push(...flattenPaths(item, prefix + '[' + i + ']'));
+    });
+  } else {
+    for (const key of Object.keys(obj)) {
+      results.push(...flattenPaths(obj[key], prefix + '.' + key));
+    }
+  }
+  return results;
+}
+
+function stringify(v) {
+  if (v === null) return 'null';
+  if (v === undefined) return 'undefined';
+  return JSON.stringify(v);
+}
+
+function formatVal(v) {
+  if (typeof v === 'string') return '"' + v + '"';
+  if (v === null) return 'null';
+  if (v === undefined) return 'undefined';
+  return String(v);
+}
+
+// --- State ---
+let currentFormat = 'json';
+let lastDiffResults = [];
+
+// Sample data
+const sampleLeft = `{
+  "name": "my-app",
+  "version": "1.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "next": "12.3.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "axios": "0.27.2"
+  },
+  "devDependencies": {
+    "eslint": "8.23.0",
+    "typescript": "4.8.2"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}`;
+
+const sampleRight = `{
+  "name": "my-app",
+  "version": "2.0.0",
+  "private": false,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --fix",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "next": "14.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "swr": "2.2.0"
+  },
+  "devDependencies": {
+    "eslint": "8.56.0",
+    "typescript": "5.3.3",
+    "vitest": "1.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}`;
+
+const sampleYamlLeft = `name: my-app
+version: 1.2.0
+private: true
+scripts:
+  dev: next dev
+  build: next build
+  start: next start
+dependencies:
+  next: 12.3.1
+  react: 18.2.0
+  axios: 0.27.2
+devDependencies:
+  eslint: 8.23.0
+  typescript: 4.8.2`;
+
+const sampleYamlRight = `name: my-app
+version: 2.0.0
+private: false
+scripts:
+  dev: next dev --turbopack
+  build: next build
+  start: next start
+  lint: eslint . --fix
+  test: vitest
+dependencies:
+  next: 14.1.0
+  react: 18.2.0
+  swr: 2.2.0
+devDependencies:
+  eslint: 8.56.0
+  typescript: 5.3.3
+  vitest: 1.0.0`;
+
+// --- UI Functions ---
+function setFormat(fmt) {
+  currentFormat = fmt;
+  document.querySelectorAll('.format-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.format === fmt);
+  });
+}
+
+function swapPanels() {
+  const left = document.getElementById('leftInput');
+  const right = document.getElementById('rightInput');
+  const tmp = left.value;
+  left.value = right.value;
+  right.value = tmp;
+  if (lastDiffResults.length) runDiff();
+  showToast('Panels swapped');
+}
+
+function clearAll() {
+  document.getElementById('leftInput').value = '';
+  document.getElementById('rightInput').value = '';
+  document.getElementById('summaryBar').style.display = 'none';
+  document.getElementById('diffOutput').style.display = 'none';
+  lastDiffResults = [];
+  showToast('Cleared');
+}
+
+function copyDiff() {
+  if (!lastDiffResults.length) { showToast('Nothing to copy — run compare first'); return; }
+  const text = lastDiffResults.map(d => {
+    if (d.type === 'added') return '+ ' + d.path + ': ' + formatVal(d.newVal);
+    if (d.type === 'removed') return '- ' + d.path + ': ' + formatVal(d.oldVal);
+    if (d.type === 'changed') return '~ ' + d.path + ': ' + formatVal(d.oldVal) + ' → ' + formatVal(d.newVal);
+    return '  ' + d.path + ': ' + formatVal(d.val);
+  }).join('\n');
+  navigator.clipboard.writeText(text).then(() => showToast('Diff copied to clipboard!'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function runDiff() {
+  const leftText = document.getElementById('leftInput').value;
+  const rightText = document.getElementById('rightInput').value;
+
+  let obj1, obj2;
+  try { obj1 = tryParse(leftText, currentFormat); }
+  catch(e) { showToast('Left panel: ' + e.message); return; }
+  try { obj2 = tryParse(rightText, currentFormat); }
+  catch(e) { showToast('Right panel: ' + e.message); return; }
+
+  const diffs = deepDiff(obj1, obj2, '');
+  lastDiffResults = diffs;
+
+  // Counts
+  let added = 0, removed = 0, changed = 0, unchanged = 0;
+  diffs.forEach(d => {
+    if (d.type === 'added') added++;
+    else if (d.type === 'removed') removed++;
+    else if (d.type === 'changed') changed++;
+    else unchanged++;
+  });
+
+  const summaryBar = document.getElementById('summaryBar');
+  summaryBar.style.display = 'flex';
+  document.getElementById('addedCount').textContent = added;
+  document.getElementById('removedCount').textContent = removed;
+  document.getElementById('changedCount').textContent = changed;
+  document.getElementById('unchangedCount').textContent = unchanged;
+
+  const identical = added === 0 && removed === 0 && changed === 0;
+  document.getElementById('identicalMsg').style.display = identical ? 'inline' : 'none';
+
+  // Render diff lines (only show non-unchanged unless all unchanged)
+  const visible = identical ? diffs : diffs.filter(d => d.type !== 'unchanged');
+  const diffOutput = document.getElementById('diffOutput');
+  const diffContent = document.getElementById('diffContent');
+  diffOutput.style.display = 'block';
+  document.getElementById('diffLineCount').textContent = visible.length + ' line' + (visible.length !== 1 ? 's' : '');
+
+  if (identical) {
+    diffContent.innerHTML = '<div class="empty-state"><div class="empty-icon">✓</div><p>Objects are identical</p></div>';
+    return;
+  }
+
+  if (visible.length === 0) {
+    diffContent.innerHTML = '<div class="empty-state"><div class="empty-icon">✓</div><p>No differences found</p></div>';
+    return;
+  }
+
+  let html = '';
+  let lineNum = 0;
+  visible.forEach(d => {
+    lineNum++;
+    const cls = d.type;
+    let prefix, valueHtml;
+    if (d.type === 'added') {
+      prefix = '+';
+      valueHtml = '<span class="val-new">' + escapeHtml(formatVal(d.newVal)) + '</span>';
+    } else if (d.type === 'removed') {
+      prefix = '-';
+      valueHtml = '<span class="val-old">' + escapeHtml(formatVal(d.oldVal)) + '</span>';
+    } else if (d.type === 'changed') {
+      prefix = '~';
+      valueHtml = '<span class="val-old">' + escapeHtml(formatVal(d.oldVal)) + '</span><span class="val-arrow"> → </span><span class="val-new">' + escapeHtml(formatVal(d.newVal)) + '</span>';
+    } else {
+      prefix = ' ';
+      valueHtml = escapeHtml(formatVal(d.val));
+    }
+    html += '<div class="diff-line ' + cls + '">'
+      + '<span class="line-num">' + lineNum + '</span>'
+      + '<span class="line-prefix">' + prefix + '</span>'
+      + '<span class="line-path">' + escapeHtml(d.path) + '</span>'
+      + '<span class="line-value">' + valueHtml + '</span>'
+      + '</div>';
+  });
+
+  diffContent.innerHTML = html;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// --- Init with sample data ---
+function loadSamples() {
+  if (currentFormat === 'json') {
+    document.getElementById('leftInput').value = sampleLeft;
+    document.getElementById('rightInput').value = sampleRight;
+  } else {
+    document.getElementById('leftInput').value = sampleYamlLeft;
+    document.getElementById('rightInput').value = sampleYamlRight;
+  }
+  runDiff();
+}
+
+// Keyboard shortcut
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    runDiff();
+  }
+});
+
+// Load samples on ready
+loadSamples();
+</script>
+</body>
+</html>
