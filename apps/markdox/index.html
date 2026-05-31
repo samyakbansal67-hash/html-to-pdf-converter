@@ -790,22 +790,33 @@
  const contentW = pageW - marginMM * 2;
  const contentH = pageH - marginMM * 2;
 
- const imgData = canvas.toDataURL('image/jpeg', 0.95);
+ // Crop canvas into page-sized slices to avoid repetition
  const imgW = contentW;
  const imgH = (canvas.height * contentW) / canvas.width;
+ const scale = canvas.width / imgW; // px per mm
+ const pagePxH = Math.floor(contentH * scale); // pixels per PDF page
+ const totalPages = Math.ceil(canvas.height / pagePxH);
 
- let heightLeft = imgH;
- let page = 1;
+ let page = 0;
+ while (page < totalPages) {
+ if (page > 0) pdf.addPage();
 
- pdf.addImage(imgData, 'JPEG', marginMM, marginMM, imgW, imgH);
- heightLeft -= contentH;
+ // Crop this page's slice from the canvas
+ const srcY = page * pagePxH;
+ const srcH = Math.min(pagePxH, canvas.height - srcY);
+ const sliceH = (srcH * contentW) / canvas.width; // height in mm
 
- while (heightLeft > 0) {
+ const sliceCanvas = document.createElement('canvas');
+ sliceCanvas.width = canvas.width;
+ sliceCanvas.height = srcH;
+ const ctx = sliceCanvas.getContext('2d');
+ ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+
+ const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.95);
+ pdf.addImage(sliceData, 'JPEG', marginMM, marginMM, imgW, sliceH);
  page++;
- pdf.addPage();
- const position = marginMM - (page - 1) * contentH;
- pdf.addImage(imgData, 'JPEG', marginMM, position, imgW, imgH);
- heightLeft -= contentH;
+
+ await tick(75 + page * 3, 90, `Page ${page} of ${totalPages}…`, 50);
  }
 
  await tick(90, 100, 'Done!', 150);
