@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
 <!-- Markdown parser -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -19,319 +19,338 @@
  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
  :root {
-  --bg: #0e0e0e;
-  --surface: #171717;
-  --surface-2: #1f1f1f;
-  --border: #2a2a2a;
-  --border-hover: #3a3a3a;
-  --text: #d4d4d4;
-  --text-dim: #666;
-  --accent: #7c6ef0;
-  --accent-soft: rgba(124,110,240,0.08);
-  --accent-border: rgba(124,110,240,0.25);
-  --green: #4ade80;
-  --green-soft: rgba(74,222,128,0.08);
-  --green-border: rgba(74,222,128,0.25);
-  --radius: 10px;
+ --bg: #F8F6FF;
+ --surface: #FFFFFF;
+ --surface-2: #F3F0FF;
+ --border: #E8E0F8;
+ --border-hover: #D4C8F0;
+ --text: #1A1A2E;
+ --text-dim: #6B6080;
+ --accent: #7C3AED;
+ --accent-soft: rgba(124,58,237,0.06);
+ --accent-border: rgba(124,58,237,0.25);
+ --violet: #7C3AED;
+ --indigo: #4F46E5;
+ --green: #22C55E;
+ --green-soft: rgba(34,197,94,0.08);
+ --green-border: rgba(34,197,94,0.25);
+ --radius: 14px;
+ --shadow: 0 2px 12px rgba(26,26,46,0.06);
+ --shadow-hover: 0 8px 24px rgba(26,26,46,0.1);
  }
 
  body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', -apple-system, sans-serif;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
+ background: var(--bg);
+ background-image: radial-gradient(ellipse at top left, rgba(124,58,237,0.05) 0%, transparent 60%);
+ color: var(--text);
+ font-family: 'DM Sans', sans-serif;
+ min-height: 100vh;
+ -webkit-font-smoothing: antialiased;
  }
 
  .container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 48px 24px 80px;
+ max-width: 900px;
+ margin: 0 auto;
+ padding: 48px 24px 80px;
  }
 
  /* ── Header ── */
  .header {
-  margin-bottom: 32px;
-  animation: fadeIn 0.5s ease both;
+ margin-bottom: 32px;
+ animation: fadeIn 0.5s ease both;
  }
 
  .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text-dim);
-  margin-bottom: 16px;
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ padding: 6px 14px;
+ border-radius: 100px;
+ background: var(--surface);
+ border: 1px solid var(--border);
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 10px;
+ font-weight: 500;
+ color: var(--text-dim);
+ margin-bottom: 16px;
+ box-shadow: var(--shadow);
  }
 
  .badge .dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--green);
+ width: 7px; height: 7px;
+ border-radius: 50%;
+ background: var(--green);
+ box-shadow: 0 0 8px rgba(34,197,94,0.4);
  }
 
  .header h1 {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
+ font-family: 'Sora', sans-serif;
+ font-size: 24px;
+ font-weight: 700;
+ letter-spacing: -0.03em;
+ margin-bottom: 6px;
  }
 
- .header h1 span { color: var(--text-dim); font-weight: 400; }
+ .header h1 span {
+ background: linear-gradient(135deg, #7C3AED, #4F46E5);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ background-clip: text;
+ }
+
  .header p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
 
  /* ── Tabs ── */
  .tab-bar {
-  display: flex;
-  gap: 2px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 3px;
-  margin-bottom: 16px;
-  animation: fadeIn 0.5s ease 0.05s both;
+ display: flex;
+ gap: 2px;
+ background: var(--surface);
+ border: 1.5px solid var(--border);
+ border-radius: 10px;
+ padding: 4px;
+ margin-bottom: 16px;
+ box-shadow: var(--shadow);
+ animation: fadeIn 0.5s ease 0.05s both;
  }
 
  .tab-btn {
-  flex: 1;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--text-dim);
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
+ flex: 1;
+ padding: 10px;
+ border: none;
+ border-radius: 8px;
+ background: transparent;
+ color: var(--text-dim);
+ font-family: 'DM Sans', sans-serif;
+ font-size: 13px;
+ font-weight: 600;
+ cursor: pointer;
+ transition: all 0.2s;
  }
 
  .tab-btn.active {
-  background: var(--surface-2);
-  color: var(--text);
+ background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(79,70,229,0.1));
+ color: var(--violet);
  }
 
  .tab-btn:hover:not(.active) { color: var(--text); }
 
  /* ── Editor / Preview ── */
  .editor-section, .upload-section {
-  display: none;
-  animation: fadeIn 0.3s ease both;
+ display: none;
+ animation: fadeIn 0.3s ease both;
  }
 
  .editor-section.active, .upload-section.active { display: block; }
 
  .editor-wrap {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  animation: fadeIn 0.5s ease 0.1s both;
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 1px;
+ background: var(--border);
+ border-radius: var(--radius);
+ overflow: hidden;
+ border: 1.5px solid var(--border);
+ box-shadow: var(--shadow);
+ animation: fadeIn 0.5s ease 0.1s both;
  }
 
  .editor-pane, .preview-pane {
-  background: var(--surface);
-  min-height: 420px;
+ background: var(--surface);
+ min-height: 420px;
  }
 
  .pane-header {
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--border);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+ padding: 10px 14px;
+ border-bottom: 1px solid var(--border);
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 10px;
+ font-weight: 500;
+ color: var(--text-dim);
+ text-transform: uppercase;
+ letter-spacing: 0.05em;
  }
 
  .editor-textarea {
-  width: 100%;
-  min-height: 370px;
-  padding: 14px;
-  border: none;
-  background: transparent;
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  line-height: 1.7;
-  resize: vertical;
+ width: 100%;
+ min-height: 370px;
+ padding: 14px;
+ border: none;
+ background: transparent;
+ color: var(--text);
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 13px;
+ line-height: 1.7;
+ resize: vertical;
  }
 
  .editor-textarea:focus { outline: none; }
- .editor-textarea::placeholder { color: var(--text-dim); opacity: 0.35; }
+ .editor-textarea::placeholder { color: var(--text-dim); opacity: 0.4; }
 
  .preview-content {
-  padding: 14px;
-  overflow-y: auto;
-  max-height: 420px;
+ padding: 14px;
+ overflow-y: auto;
+ max-height: 420px;
  }
 
  /* ── Preview Typography ── */
  .preview-content h1 { font-size: 22px; font-weight: 700; margin: 16px 0 8px; color: var(--text); }
  .preview-content h2 { font-size: 18px; font-weight: 600; margin: 14px 0 6px; color: var(--text); }
  .preview-content h3 { font-size: 15px; font-weight: 600; margin: 12px 0 4px; color: var(--text); }
- .preview-content p { font-family: 'Lora', serif; font-size: 14px; line-height: 1.7; margin: 6px 0; color: #bbb; }
+ .preview-content p { font-family: 'Lora', serif; font-size: 14px; line-height: 1.7; margin: 6px 0; color: #4A4560; }
  .preview-content ul, .preview-content ol { padding-left: 20px; margin: 6px 0; }
- .preview-content li { font-size: 13px; line-height: 1.6; margin: 3px 0; color: #aaa; }
+ .preview-content li { font-size: 13px; line-height: 1.6; margin: 3px 0; color: #5A5470; }
  .preview-content code {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--surface-2);
-  color: var(--accent);
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 12px;
+ padding: 2px 6px;
+ border-radius: 4px;
+ background: var(--surface-2);
+ color: var(--violet);
  }
  .preview-content pre {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 12px;
-  margin: 8px 0;
-  overflow-x: auto;
+ background: var(--surface-2);
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ padding: 12px;
+ margin: 8px 0;
+ overflow-x: auto;
  }
  .preview-content pre code { padding: 0; background: none; }
  .preview-content blockquote {
-  border-left: 3px solid var(--accent);
-  padding-left: 14px;
-  margin: 8px 0;
-  color: var(--text-dim);
-  font-style: italic;
+ border-left: 3px solid var(--violet);
+ padding-left: 14px;
+ margin: 8px 0;
+ color: var(--text-dim);
+ font-style: italic;
  }
- .preview-content a { color: var(--accent); text-decoration: none; }
+ .preview-content a { color: var(--violet); text-decoration: none; }
  .preview-content hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
  .preview-content table { border-collapse: collapse; margin: 8px 0; width: 100%; }
  .preview-content th, .preview-content td {
-  border: 1px solid var(--border);
-  padding: 6px 10px;
-  font-size: 12px;
-  text-align: left;
+ border: 1px solid var(--border);
+ padding: 6px 10px;
+ font-size: 12px;
+ text-align: left;
  }
  .preview-content th { background: var(--surface-2); font-weight: 600; }
  .preview-content img { max-width: 100%; border-radius: 4px; }
 
  /* ── Upload ── */
  .drop-zone {
-  border: 1.5px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 40px 24px;
-  text-align: center;
-  cursor: pointer;
-  background: var(--surface);
-  transition: border-color 0.2s, background 0.2s;
+ border: 2px dashed var(--border);
+ border-radius: var(--radius);
+ padding: 40px 24px;
+ text-align: center;
+ cursor: pointer;
+ background: var(--surface);
+ box-shadow: var(--shadow);
+ transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
  }
 
  .drop-zone:hover, .drop-zone.drag-over {
-  border-color: var(--border-hover);
-  background: var(--surface-2);
+ border-color: var(--violet);
+ background: var(--accent-soft);
  }
 
  .drop-icon {
-  width: 40px; height: 40px;
-  margin: 0 auto 12px;
-  border-radius: 8px;
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+ width: 40px; height: 40px;
+ margin: 0 auto 12px;
+ border-radius: 10px;
+ background: var(--accent-soft);
+ border: 1px solid var(--accent-border);
+ display: flex;
+ align-items: center;
+ justify-content: center;
  }
 
- .drop-icon svg { width: 18px; height: 18px; stroke: var(--text-dim); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+ .drop-icon svg { width: 18px; height: 18px; stroke: var(--violet); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
- .drop-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+ .drop-title { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
  .drop-sub { font-size: 12px; color: var(--text-dim); }
- .drop-sub .browse { color: var(--accent); font-weight: 500; }
+ .drop-sub .browse { color: var(--violet); font-weight: 600; }
 
  input[type="file"] { display: none; }
 
  /* ── Settings Row ── */
  .settings-row {
-  display: flex;
-  gap: 10px;
-  margin: 16px 0;
-  animation: fadeIn 0.5s ease 0.15s both;
+ display: flex;
+ gap: 10px;
+ margin: 16px 0;
+ animation: fadeIn 0.5s ease 0.15s both;
  }
 
  .setting-card {
-  flex: 1;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px;
-  transition: border-color 0.2s;
+ flex: 1;
+ background: var(--surface);
+ border: 1.5px solid var(--border);
+ border-radius: var(--radius);
+ padding: 12px;
+ box-shadow: var(--shadow);
+ transition: border-color 0.2s;
  }
 
  .setting-card:hover { border-color: var(--border-hover); }
 
  .setting-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 6px;
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 10px;
+ font-weight: 500;
+ letter-spacing: 0.08em;
+ text-transform: uppercase;
+ color: var(--text-dim);
+ margin-bottom: 6px;
  }
 
  .setting-card select {
-  width: 100%;
-  padding: 7px 8px;
-  border-radius: 6px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  appearance: none;
-  cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
+ width: 100%;
+ padding: 7px 8px;
+ border-radius: 8px;
+ background: var(--surface-2);
+ border: 1px solid var(--border);
+ color: var(--text);
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 12px;
+ appearance: none;
+ cursor: pointer;
+ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236B6080' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+ background-repeat: no-repeat;
+ background-position: right 8px center;
  }
 
- .setting-card select:focus { outline: none; border-color: var(--accent-border); }
+ .setting-card select:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
 
  /* ── Convert Button ── */
  .convert-btn {
-  width: 100%;
-  padding: 13px;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--accent);
-  color: white;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  animation: fadeIn 0.5s ease 0.2s both;
+ width: 100%;
+ padding: 14px;
+ border: none;
+ border-radius: var(--radius);
+ background: linear-gradient(135deg, #7C3AED, #4F46E5);
+ color: white;
+ font-family: 'Sora', sans-serif;
+ font-size: 14px;
+ font-weight: 600;
+ cursor: pointer;
+ box-shadow: 0 4px 16px rgba(124,58,237,0.3);
+ transition: all 0.2s;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ gap: 8px;
+ animation: fadeIn 0.5s ease 0.2s both;
  }
 
- .convert-btn:hover { opacity: 0.9; }
- .convert-btn:active { transform: scale(0.98); }
- .convert-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+ .convert-btn:hover { box-shadow: 0 6px 24px rgba(124,58,237,0.4); transform: translateY(-1px); }
+ .convert-btn:active { transform: scale(0.98) translateY(0); }
+ .convert-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
  .btn-spinner {
-  display: none;
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.2);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+ display: none;
+ width: 16px; height: 16px;
+ border: 2px solid rgba(255,255,255,0.3);
+ border-top-color: white;
+ border-radius: 50%;
+ animation: spin 0.6s linear infinite;
  }
 
  .convert-btn.loading .btn-spinner { display: block; }
@@ -341,139 +360,142 @@
 
  /* ── Progress ── */
  .progress-wrap {
-  display: none;
-  margin-top: 12px;
-  animation: fadeIn 0.3s ease both;
+ display: none;
+ margin-top: 12px;
+ animation: fadeIn 0.3s ease both;
  }
 
  .progress-wrap.visible { display: block; }
 
  .progress-track {
-  width: 100%;
-  height: 3px;
-  border-radius: 100px;
-  background: var(--surface-2);
-  overflow: hidden;
+ width: 100%;
+ height: 5px;
+ border-radius: 100px;
+ background: var(--surface-2);
+ border: 1px solid var(--border);
+ overflow: hidden;
  }
 
  .progress-fill {
-  height: 100%;
-  border-radius: 100px;
-  background: var(--accent);
-  width: 0%;
-  transition: width 0.4s ease;
+ height: 100%;
+ border-radius: 100px;
+ background: linear-gradient(90deg, #7C3AED, #4F46E5);
+ width: 0%;
+ transition: width 0.4s ease;
  }
 
  .progress-meta {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  color: var(--text-dim);
+ display: flex;
+ justify-content: space-between;
+ margin-top: 6px;
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 10px;
+ color: var(--text-dim);
  }
 
- .progress-pct { color: var(--accent); font-weight: 500; }
+ .progress-pct { color: var(--violet); font-weight: 500; }
 
  /* ── Result ── */
  .result-section {
-  display: none;
-  margin-top: 20px;
-  animation: fadeIn 0.4s ease both;
+ display: none;
+ margin-top: 20px;
+ animation: fadeIn 0.4s ease both;
  }
 
  .result-section.visible { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
  .result-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--green);
+ display: flex;
+ align-items: center;
+ gap: 6px;
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 12px;
+ font-weight: 500;
+ color: var(--green);
  }
 
  .result-check {
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: var(--green-soft);
-  border: 1px solid var(--green-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  color: var(--green);
+ width: 20px; height: 20px;
+ border-radius: 50%;
+ background: var(--green-soft);
+ border: 1.5px solid var(--green-border);
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 10px;
+ color: var(--green);
  }
 
  .dl-btn {
-  padding: 8px 18px;
-  border-radius: 6px;
-  background: var(--surface);
-  border: 1px solid var(--accent-border);
-  color: var(--accent);
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: background 0.2s;
+ padding: 10px 20px;
+ border-radius: 10px;
+ background: var(--surface);
+ border: 1.5px solid var(--accent-border);
+ color: var(--violet);
+ font-family: 'DM Sans', sans-serif;
+ font-size: 12px;
+ font-weight: 600;
+ cursor: pointer;
+ display: flex;
+ align-items: center;
+ gap: 5px;
+ box-shadow: var(--shadow);
+ transition: all 0.2s;
  }
 
- .dl-btn:hover { background: var(--accent-soft); }
+ .dl-btn:hover { background: var(--accent-soft); border-color: var(--violet); }
 
  /* ── Toast ── */
  .toast-bar {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  padding: 8px 20px;
-  border-radius: 6px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  z-index: 10000;
-  opacity: 0;
-  transition: all 0.3s ease;
-  pointer-events: none;
-  white-space: nowrap;
+ position: fixed;
+ bottom: 24px;
+ left: 50%;
+ transform: translateX(-50%) translateY(80px);
+ padding: 10px 20px;
+ border-radius: 10px;
+ background: var(--surface);
+ border: 1.5px solid var(--border);
+ color: var(--text);
+ font-family: 'DM Sans', sans-serif;
+ font-size: 12px;
+ font-weight: 500;
+ z-index: 10000;
+ opacity: 0;
+ box-shadow: 0 8px 32px rgba(26,26,46,0.12);
+ transition: all 0.3s ease;
+ pointer-events: none;
+ white-space: nowrap;
  }
 
  .toast-bar.show { opacity: 1; transform: translateX(-50%) translateY(0); }
  .toast-bar.ok { border-color: var(--green-border); }
- .toast-bar.err { border-color: rgba(255,68,68,0.3); }
+ .toast-bar.err { border-color: rgba(239,68,68,0.3); }
 
  /* ── Footer ── */
  .footer {
-  text-align: center;
-  margin-top: 48px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  animation: fadeIn 0.5s ease 0.25s both;
+ text-align: center;
+ margin-top: 48px;
+ padding-top: 16px;
+ border-top: 1px solid var(--border);
+ animation: fadeIn 0.5s ease 0.25s both;
  }
 
  .footer p { font-size: 12px; color: var(--text-dim); }
 
  @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+ from { opacity: 0; transform: translateY(8px); }
+ to { opacity: 1; transform: translateY(0); }
  }
 
  @media (max-width: 700px) {
-  .editor-wrap { grid-template-columns: 1fr; }
-  .preview-pane { display: none; }
-  .settings-row { flex-direction: column; }
+ .editor-wrap { grid-template-columns: 1fr; }
+ .preview-pane { display: none; }
+ .settings-row { flex-direction: column; }
  }
 
- ::-webkit-scrollbar { width: 4px; }
- ::-webkit-scrollbar-track { background: var(--surface); }
- ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 100px; }
+ ::-webkit-scrollbar { width: 6px; }
+ ::-webkit-scrollbar-track { background: var(--bg); }
+ ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 100px; }
 </style>
 </head>
 <body>
@@ -482,93 +504,93 @@
 
 <div class="container">
  <header class="header">
-  <div class="badge"><span class="dot"></span>Free · No Signup · 100% Offline</div>
-  <h1>MarkDox <span>→ PDF</span></h1>
-  <p>Write or paste Markdown, get a beautiful PDF. Entirely in your browser — nothing uploaded, nothing stored.</p>
+ <div class="badge"><span class="dot"></span>Free · No Signup · 100% Offline</div>
+ <h1>MarkDox <span>→ PDF</span></h1>
+ <p>Write or paste Markdown, get a beautiful PDF. Entirely in your browser — nothing uploaded, nothing stored.</p>
  </header>
 
  <!-- Tabs -->
  <div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('write')">Write</button>
-  <button class="tab-btn" onclick="switchTab('upload')">Upload .md</button>
+ <button class="tab-btn active" onclick="switchTab('write')">Write</button>
+ <button class="tab-btn" onclick="switchTab('upload')">Upload .md</button>
  </div>
 
  <!-- Write Tab -->
  <div class="editor-section active" id="writeTab">
-  <div class="editor-wrap">
-   <div class="editor-pane">
-    <div class="pane-header">markdown</div>
-    <textarea class="editor-textarea" id="editor" placeholder="# My Document&#10;&#10;Start writing your markdown here...&#10;&#10;## Features&#10;&#10;- **Bold** and *italic* text&#10;- Lists, code blocks, tables&#10;- Links and images&#10;&#10;```js&#10;console.log('hello world');&#10;```" spellcheck="false"></textarea>
-   </div>
-   <div class="preview-pane">
-    <div class="pane-header">preview</div>
-    <div class="preview-content" id="preview"></div>
-   </div>
-  </div>
+ <div class="editor-wrap">
+ <div class="editor-pane">
+ <div class="pane-header">markdown</div>
+ <textarea class="editor-textarea" id="editor" placeholder="# My Document&#10;&#10;Start writing your markdown here...&#10;&#10;## Features&#10;&#10;- **Bold** and *italic* text&#10;- Lists, code blocks, tables&#10;- Links and images&#10;&#10;```js&#10;console.log('hello world');&#10;```" spellcheck="false"></textarea>
+ </div>
+ <div class="preview-pane">
+ <div class="pane-header">preview</div>
+ <div class="preview-content" id="preview"></div>
+ </div>
+ </div>
  </div>
 
  <!-- Upload Tab -->
  <div class="upload-section" id="uploadTab">
-  <div class="drop-zone" id="dropZone">
-   <div class="drop-icon">
-    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-   </div>
-   <div class="drop-title">Drop .md file here</div>
-   <div class="drop-sub">or <span class="browse">browse</span> · .md / .txt / .markdown</div>
-   <input type="file" id="fileInput" accept=".md,.txt,.markdown">
-  </div>
+ <div class="drop-zone" id="dropZone">
+ <div class="drop-icon">
+ <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+ </div>
+ <div class="drop-title">Drop .md file here</div>
+ <div class="drop-sub">or <span class="browse">browse</span> · .md / .txt / .markdown</div>
+ <input type="file" id="fileInput" accept=".md,.txt,.markdown">
+ </div>
  </div>
 
  <!-- Settings -->
  <div class="settings-row">
-  <div class="setting-card">
-   <div class="setting-label">Theme</div>
-   <select id="optTheme">
-    <option value="light">Light</option>
-    <option value="dark" selected>Dark</option>
-    <option value="sepia">Sepia</option>
-   </select>
-  </div>
-  <div class="setting-card">
-   <div class="setting-label">Page Size</div>
-   <select id="optPageSize">
-    <option value="a4" selected>A4</option>
-    <option value="letter">US Letter</option>
-    <option value="a3">A3</option>
-   </select>
-  </div>
-  <div class="setting-card">
-   <div class="setting-label">Font</div>
-   <select id="optFont">
-    <option value="serif" selected>Serif (Lora)</option>
-    <option value="sans">Sans (Inter)</option>
-    <option value="mono">Mono (JetBrains)</option>
-   </select>
-  </div>
+ <div class="setting-card">
+ <div class="setting-label">Theme</div>
+ <select id="optTheme">
+ <option value="light">Light</option>
+ <option value="dark" selected>Dark</option>
+ <option value="sepia">Sepia</option>
+ </select>
+ </div>
+ <div class="setting-card">
+ <div class="setting-label">Page Size</div>
+ <select id="optPageSize">
+ <option value="a4" selected>A4</option>
+ <option value="letter">US Letter</option>
+ <option value="a3">A3</option>
+ </select>
+ </div>
+ <div class="setting-card">
+ <div class="setting-label">Font</div>
+ <select id="optFont">
+ <option value="serif" selected>Serif (Lora)</option>
+ <option value="sans">Sans (Inter)</option>
+ <option value="mono">Mono (JetBrains)</option>
+ </select>
+ </div>
  </div>
 
  <!-- Convert -->
  <button class="convert-btn" id="convertBtn" onclick="runConversion()">
-  <span class="btn-text">Convert to PDF</span>
-  <div class="btn-spinner"></div>
+ <span class="btn-text">Convert to PDF</span>
+ <div class="btn-spinner"></div>
  </button>
 
  <!-- Progress -->
  <div class="progress-wrap" id="progressWrap">
-  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="progress-meta">
-   <span id="progressMsg">Preparing…</span>
-   <span class="progress-pct" id="progressPct">0%</span>
-  </div>
+ <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+ <div class="progress-meta">
+ <span id="progressMsg">Preparing…</span>
+ <span class="progress-pct" id="progressPct">0%</span>
+ </div>
  </div>
 
  <!-- Result -->
  <div class="result-section" id="resultSection">
-  <div class="result-label">
-   <span class="result-check">✓</span>
-   PDF ready
-  </div>
-  <button class="dl-btn" onclick="downloadPDF()">⬇ Download</button>
+ <div class="result-label">
+ <span class="result-check">✓</span>
+ PDF ready
+ </div>
+ <button class="dl-btn" onclick="downloadPDF()">⬇ Download</button>
  </div>
 
  <div class="footer"><p>MarkDox — 100% free · 100% offline · 100% yours</p></div>
@@ -595,28 +617,28 @@
 
  // ── Configure marked ──
  marked.setOptions({
-  breaks: true,
-  gfm: true,
+ breaks: true,
+ gfm: true,
  });
 
  // ── Live preview ──
  editor.addEventListener('input', () => {
-  markdownSrc = editor.value;
-  preview.innerHTML = marked.parse(markdownSrc);
+ markdownSrc = editor.value;
+ preview.innerHTML = marked.parse(markdownSrc);
  });
 
  // Init preview
  if (editor.value) {
-  markdownSrc = editor.value;
-  preview.innerHTML = marked.parse(markdownSrc);
+ markdownSrc = editor.value;
+ preview.innerHTML = marked.parse(markdownSrc);
  }
 
  // ── Tabs ──
  function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('writeTab').classList.toggle('active', tab === 'write');
-  document.getElementById('uploadTab').classList.toggle('active', tab === 'upload');
+ document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+ event.target.classList.add('active');
+ document.getElementById('writeTab').classList.toggle('active', tab === 'write');
+ document.getElementById('uploadTab').classList.toggle('active', tab === 'upload');
  }
 
  // ── File upload ──
@@ -624,70 +646,70 @@
  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
  dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
-  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+ e.preventDefault();
+ dropZone.classList.remove('drag-over');
+ if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
  });
  fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
 
  function handleFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-   markdownSrc = e.target.result;
-   editor.value = markdownSrc;
-   preview.innerHTML = marked.parse(markdownSrc);
-   // Switch to write tab to show content
-   document.querySelectorAll('.tab-btn')[0].click();
-   toast('Markdown loaded', 'ok');
-  };
-  reader.readAsText(file);
+ const reader = new FileReader();
+ reader.onload = e => {
+ markdownSrc = e.target.result;
+ editor.value = markdownSrc;
+ preview.innerHTML = marked.parse(markdownSrc);
+ // Switch to write tab to show content
+ document.querySelectorAll('.tab-btn')[0].click();
+ toast('Markdown loaded', 'ok');
+ };
+ reader.readAsText(file);
  }
 
  // ── Conversion ──
  async function runConversion() {
-  if (!markdownSrc.trim()) { toast('Write or paste some Markdown first', 'err'); return; }
+ if (!markdownSrc.trim()) { toast('Write or paste some Markdown first', 'err'); return; }
 
-  convertBtn.classList.add('loading');
-  convertBtn.disabled = true;
-  progressWrap.classList.add('visible');
-  resultSection.classList.remove('visible');
+ convertBtn.classList.add('loading');
+ convertBtn.disabled = true;
+ progressWrap.classList.add('visible');
+ resultSection.classList.remove('visible');
 
-  const pageSize = document.getElementById('optPageSize').value;
-  const theme = document.getElementById('optTheme').value;
-  const font = document.getElementById('optFont').value;
+ const pageSize = document.getElementById('optPageSize').value;
+ const theme = document.getElementById('optTheme').value;
+ const font = document.getElementById('optFont').value;
 
-  await tick(0, 15, 'Parsing markdown…', 200);
+ await tick(0, 15, 'Parsing markdown…', 200);
 
-  // Build styled HTML for PDF
-  const themeStyles = {
-   light: { bg: '#ffffff', color: '#1a1a1a', heading: '#111111', muted: '#555555', codebg: '#f5f5f5', border: '#e0e0e0' },
-   dark: { bg: '#1a1a1a', color: '#d4d4d4', heading: '#e4e4e4', muted: '#888888', codebg: '#252525', border: '#333333' },
-   sepia: { bg: '#f4ecd8', color: '#3b3226', heading: '#2a1f10', muted: '#7a6e5d', codebg: '#ebe3cf', border: '#d4c9b0' },
-  };
-  const t = themeStyles[theme];
+ // Build styled HTML for PDF
+ const themeStyles = {
+ light: { bg: '#ffffff', color: '#1a1a1a', heading: '#111111', muted: '#555555', codebg: '#f5f5f5', border: '#e0e0e0' },
+ dark: { bg: '#1a1a1a', color: '#d4d4d4', heading: '#e4e4e4', muted: '#888888', codebg: '#252525', border: '#333333' },
+ sepia: { bg: '#f4ecd8', color: '#3b3226', heading: '#2a1f10', muted: '#7a6e5d', codebg: '#ebe3cf', border: '#d4c9b0' },
+ };
+ const t = themeStyles[theme];
 
-  const fontFamilies = {
-   serif: "'Lora', 'Georgia', serif",
-   sans: "'Inter', -apple-system, sans-serif",
-   mono: "'JetBrains Mono', 'Courier New', monospace",
-  };
-  const ff = fontFamilies[font];
+ const fontFamilies = {
+ serif: "'Lora', 'Georgia', serif",
+ sans: "'Inter', -apple-system, sans-serif",
+ mono: "'JetBrains Mono', 'Courier New', monospace",
+ };
+ const ff = fontFamilies[font];
 
-  const htmlContent = marked.parse(markdownSrc);
+ const htmlContent = marked.parse(markdownSrc);
 
-  const fullHTML = `<!DOCTYPE html>
+ const fullHTML = `<!DOCTYPE html>
 <html><head>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
  * { margin: 0; padding: 0; box-sizing: border-box; }
  body {
-  font-family: ${ff};
-  font-size: 14px;
-  line-height: 1.7;
-  color: ${t.color};
-  background: ${t.bg};
-  padding: 20px;
-  max-width: 754px;
+ font-family: ${ff};
+ font-size: 14px;
+ line-height: 1.7;
+ color: ${t.color};
+ background: ${t.bg};
+ padding: 20px;
+ max-width: 754px;
  }
  h1 { font-size: 26px; font-weight: 700; margin: 24px 0 12px; color: ${t.heading}; }
  h2 { font-size: 20px; font-weight: 600; margin: 20px 0 8px; color: ${t.heading}; }
@@ -696,27 +718,27 @@
  ul, ol { padding-left: 22px; margin: 6px 0; }
  li { margin: 3px 0; }
  code {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  padding: 2px 5px;
-  border-radius: 3px;
-  background: ${t.codebg};
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 12px;
+ padding: 2px 5px;
+ border-radius: 3px;
+ background: ${t.codebg};
  }
  pre {
-  background: ${t.codebg};
-  border: 1px solid ${t.border};
-  border-radius: 4px;
-  padding: 12px;
-  margin: 10px 0;
-  overflow-x: auto;
+ background: ${t.codebg};
+ border: 1px solid ${t.border};
+ border-radius: 4px;
+ padding: 12px;
+ margin: 10px 0;
+ overflow-x: auto;
  }
  pre code { padding: 0; background: none; }
  blockquote {
-  border-left: 3px solid ${t.muted};
-  padding-left: 14px;
-  margin: 10px 0;
-  color: ${t.muted};
-  font-style: italic;
+ border-left: 3px solid ${t.muted};
+ padding-left: 14px;
+ margin: 10px 0;
+ color: ${t.muted};
+ font-style: italic;
  }
  a { color: #5b8def; }
  hr { border: none; border-top: 1px solid ${t.border}; margin: 14px 0; }
@@ -727,115 +749,115 @@
 </style>
 </head><body>${htmlContent}</body></html>`;
 
-  await tick(15, 35, 'Rendering content…', 200);
+ await tick(15, 35, 'Rendering content…', 200);
 
-  // Use iframe to render
-  const target = document.getElementById('renderTarget');
-  target.innerHTML = '';
-  target.style.background = t.bg;
+ // Use iframe to render
+ const target = document.getElementById('renderTarget');
+ target.innerHTML = '';
+ target.style.background = t.bg;
 
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = `width:794px;border:none;min-height:100px;background:${t.bg};`;
-  iframe.srcdoc = fullHTML;
-  target.appendChild(iframe);
+ const iframe = document.createElement('iframe');
+ iframe.style.cssText = `width:794px;border:none;min-height:100px;background:${t.bg};`;
+ iframe.srcdoc = fullHTML;
+ target.appendChild(iframe);
 
-  await new Promise(resolve => { iframe.onload = resolve; setTimeout(resolve, 5000); });
+ await new Promise(resolve => { iframe.onload = resolve; setTimeout(resolve, 5000); });
 
-  await tick(35, 55, 'Capturing canvas…', 300);
+ await tick(35, 55, 'Capturing canvas…', 300);
 
-  try {
-   const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-   const iframeBody = iframeDoc.body;
+ try {
+ const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+ const iframeBody = iframeDoc.body;
 
-   const canvas = await html2canvas(iframeBody, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    logging: false,
-    backgroundColor: t.bg,
-    width: 794,
-    windowWidth: 794,
-   });
+ const canvas = await html2canvas(iframeBody, {
+ scale: 2,
+ useCORS: true,
+ allowTaint: true,
+ logging: false,
+ backgroundColor: t.bg,
+ width: 794,
+ windowWidth: 794,
+ });
 
-   await tick(55, 75, 'Building PDF pages…', 200);
+ await tick(55, 75, 'Building PDF pages…', 200);
 
-   const { jsPDF } = window.jspdf;
-   const pdf = new jsPDF({ unit: 'mm', format: pageSize, orientation: 'portrait' });
+ const { jsPDF } = window.jspdf;
+ const pdf = new jsPDF({ unit: 'mm', format: pageSize, orientation: 'portrait' });
 
-   const pageSizes = { a4: [210, 297], letter: [215.9, 279.4], a3: [297, 420] };
-   const [pageW, pageH] = pageSizes[pageSize];
-   const marginMM = 10;
-   const contentW = pageW - marginMM * 2;
-   const contentH = pageH - marginMM * 2;
+ const pageSizes = { a4: [210, 297], letter: [215.9, 279.4], a3: [297, 420] };
+ const [pageW, pageH] = pageSizes[pageSize];
+ const marginMM = 10;
+ const contentW = pageW - marginMM * 2;
+ const contentH = pageH - marginMM * 2;
 
-   const imgData = canvas.toDataURL('image/jpeg', 0.95);
-   const imgW = contentW;
-   const imgH = (canvas.height * contentW) / canvas.width;
+ const imgData = canvas.toDataURL('image/jpeg', 0.95);
+ const imgW = contentW;
+ const imgH = (canvas.height * contentW) / canvas.width;
 
-   let heightLeft = imgH;
-   let page = 1;
+ let heightLeft = imgH;
+ let page = 1;
 
-   pdf.addImage(imgData, 'JPEG', marginMM, marginMM, imgW, imgH);
-   heightLeft -= contentH;
+ pdf.addImage(imgData, 'JPEG', marginMM, marginMM, imgW, imgH);
+ heightLeft -= contentH;
 
-   while (heightLeft > 0) {
-    page++;
-    pdf.addPage();
-    const position = marginMM - (page - 1) * contentH;
-    pdf.addImage(imgData, 'JPEG', marginMM, position, imgW, imgH);
-    heightLeft -= contentH;
-   }
+ while (heightLeft > 0) {
+ page++;
+ pdf.addPage();
+ const position = marginMM - (page - 1) * contentH;
+ pdf.addImage(imgData, 'JPEG', marginMM, position, imgW, imgH);
+ heightLeft -= contentH;
+ }
 
-   await tick(90, 100, 'Done!', 150);
+ await tick(90, 100, 'Done!', 150);
 
-   pdfBlob = pdf.output('blob');
-   resultSection.classList.add('visible');
-   toast(`PDF generated — ${page} page${page>1?'s':''}`, 'ok');
-  } catch (err) {
-   console.error(err);
-   toast('Conversion failed: ' + err.message, 'err');
-   progressMsg.textContent = 'Failed';
-  }
+ pdfBlob = pdf.output('blob');
+ resultSection.classList.add('visible');
+ toast(`PDF generated — ${page} page${page>1?'s':''}`, 'ok');
+ } catch (err) {
+ console.error(err);
+ toast('Conversion failed: ' + err.message, 'err');
+ progressMsg.textContent = 'Failed';
+ }
 
-  target.innerHTML = '';
-  convertBtn.classList.remove('loading');
-  convertBtn.disabled = false;
+ target.innerHTML = '';
+ convertBtn.classList.remove('loading');
+ convertBtn.disabled = false;
  }
 
  function tick(from, to, msg, dur) {
-  progressMsg.textContent = msg;
-  const start = performance.now();
-  return new Promise(resolve => {
-   (function step() {
-    const t = Math.min((performance.now() - start) / dur, 1);
-    const e = 1 - Math.pow(1 - t, 3);
-    const v = Math.round(from + (to - from) * e);
-    progressFill.style.width = v + '%';
-    progressPct.textContent = v + '%';
-    t < 1 ? requestAnimationFrame(step) : resolve();
-   })();
-  });
+ progressMsg.textContent = msg;
+ const start = performance.now();
+ return new Promise(resolve => {
+ (function step() {
+ const t = Math.min((performance.now() - start) / dur, 1);
+ const e = 1 - Math.pow(1 - t, 3);
+ const v = Math.round(from + (to - from) * e);
+ progressFill.style.width = v + '%';
+ progressPct.textContent = v + '%';
+ t < 1 ? requestAnimationFrame(step) : resolve();
+ })();
+ });
  }
 
  function downloadPDF() {
-  if (!pdfBlob) return;
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(pdfBlob);
-  a.download = 'markdox-document.pdf';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
-  toast('PDF downloaded!', 'ok');
+ if (!pdfBlob) return;
+ const a = document.createElement('a');
+ a.href = URL.createObjectURL(pdfBlob);
+ a.download = 'markdox-document.pdf';
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ URL.revokeObjectURL(a.href);
+ toast('PDF downloaded!', 'ok');
  }
 
  function toast(msg, type) {
-  toastBar.textContent = msg;
-  toastBar.className = 'toast-bar ' + (type || '');
-  requestAnimationFrame(() => {
-   toastBar.classList.add('show');
-   setTimeout(() => toastBar.classList.remove('show'), 2800);
-  });
+ toastBar.textContent = msg;
+ toastBar.className = 'toast-bar ' + (type || '');
+ requestAnimationFrame(() => {
+ toastBar.classList.add('show');
+ setTimeout(() => toastBar.classList.remove('show'), 2800);
+ });
  }
 </script>
 </body>

@@ -6,34 +6,156 @@
 <title>Apps by Samyak</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
  :root {
-  --bg: #0e0e0e; --surface: #171717; --border: #2a2a2a;
-  --text: #d4d4d4; --text-dim: #666; --accent: #7c6ef0;
-  --accent-soft: rgba(124,110,240,0.08); --accent-border: rgba(124,110,240,0.25);
-  --green: #4ade80; --radius: 10px;
+ --bg: #FFF8F0;
+ --bg-grad: linear-gradient(135deg, #FFF8F0 0%, #FFE8D6 50%, #FFF0E6 100%);
+ --surface: #FFFFFF;
+ --border: #F0E6DD;
+ --border-hover: #E0D0C4;
+ --text: #1A1A2E;
+ --text-dim: #6B5B73;
+ --accent: #FF6B35;
+ --accent-soft: rgba(255,107,53,0.08);
+ --accent-border: rgba(255,107,53,0.25);
+ --green: #22C55E;
+ --radius: 14px;
+ --shadow: 0 2px 8px rgba(26,26,46,0.06);
+ --shadow-hover: 0 8px 24px rgba(26,26,46,0.1);
  }
- body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; }
- .container { max-width: 640px; margin: 0 auto; padding: 64px 24px 80px; }
- h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.02em; }
- h1 span { color: var(--text-dim); font-weight: 400; }
- .sub { font-size: 13px; color: var(--text-dim); margin-bottom: 36px; }
- .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; color: var(--text-dim); margin-bottom: 16px; }
- .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
- .apps { display: flex; flex-direction: column; gap: 8px; }
- .app-card { display: flex; align-items: center; gap: 14px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.15s; animation: fadeIn 0.5s ease both; }
- .app-card:hover { border-color: var(--accent-border); transform: translateY(-1px); }
- .app-icon { width: 40px; height: 40px; border-radius: 8px; background: var(--accent-soft); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+ body {
+ background: var(--bg-grad);
+ color: var(--text);
+ font-family: 'DM Sans', sans-serif;
+ min-height: 100vh;
+ -webkit-font-smoothing: antialiased;
+ }
+ .container { max-width: 640px; margin: 0 auto; padding: 72px 24px 96px; }
+
+ h1 {
+ font-family: 'Sora', sans-serif;
+ font-size: 32px;
+ font-weight: 700;
+ margin-bottom: 8px;
+ letter-spacing: -0.03em;
+ background: linear-gradient(135deg, #FF6B35, #FFBA08);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ background-clip: text;
+ }
+ h1 span { font-weight: 400; opacity: 0.4; -webkit-text-fill-color: #6B5B73; }
+
+ .sub {
+ font-size: 15px;
+ color: var(--text-dim);
+ margin-bottom: 40px;
+ line-height: 1.6;
+ }
+
+ .badge {
+ display: inline-flex;
+ align-items: center;
+ gap: 8px;
+ padding: 6px 14px;
+ border-radius: 100px;
+ background: var(--surface);
+ border: 1px solid var(--border);
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 11px;
+ font-weight: 500;
+ color: var(--text-dim);
+ margin-bottom: 20px;
+ box-shadow: var(--shadow);
+ }
+ .badge .dot {
+ width: 7px; height: 7px;
+ border-radius: 50%;
+ background: var(--green);
+ box-shadow: 0 0 6px rgba(34,197,94,0.4);
+ }
+
+ .apps { display: flex; flex-direction: column; gap: 10px; }
+
+ .app-card {
+ display: flex;
+ align-items: center;
+ gap: 14px;
+ padding: 18px 20px;
+ background: var(--surface);
+ border: 1px solid var(--border);
+ border-radius: var(--radius);
+ text-decoration: none;
+ color: var(--text);
+ box-shadow: var(--shadow);
+ transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+ animation: fadeIn 0.5s ease both;
+ border-left: 4px solid transparent;
+ }
+ .app-card:hover {
+ transform: translateY(-3px);
+ box-shadow: var(--shadow-hover);
+ border-color: var(--border-hover);
+ }
+
+ .app-card[href*="html-to-pdf"] { border-left-color: #FF6B35; }
+ .app-card[href*="markdox"] { border-left-color: #7C5CFC; }
+ .app-card[href*="reporead"] { border-left-color: #FFBA08; }
+ .app-card[href*="diffsnap"] { border-left-color: #00C9A7; }
+
+ .app-icon {
+ width: 44px; height: 44px;
+ border-radius: 10px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ font-size: 20px;
+ flex-shrink: 0;
+ }
+ .app-card[href*="html-to-pdf"] .app-icon { background: rgba(255,107,53,0.1); }
+ .app-card[href*="markdox"] .app-icon { background: rgba(124,92,252,0.1); }
+ .app-card[href*="reporead"] .app-icon { background: rgba(255,186,8,0.1); }
+ .app-card[href*="diffsnap"] .app-icon { background: rgba(0,201,167,0.1); }
+
  .app-meta { flex: 1; }
- .app-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
- .app-desc { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
- .app-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 500; padding: 2px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-border); }
- .arrow { color: var(--text-dim); font-size: 14px; }
- .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); text-align: center; }
- .footer p { font-size: 12px; color: var(--text-dim); }
- @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+ .app-name {
+ font-family: 'Sora', sans-serif;
+ font-size: 15px;
+ font-weight: 600;
+ margin-bottom: 3px;
+ letter-spacing: -0.01em;
+ }
+ .app-desc { font-size: 13px; color: var(--text-dim); line-height: 1.45; }
+
+ .app-tag {
+ font-family: 'JetBrains Mono', monospace;
+ font-size: 9px;
+ font-weight: 500;
+ padding: 3px 8px;
+ border-radius: 6px;
+ white-space: nowrap;
+ }
+ .app-card[href*="html-to-pdf"] .app-tag { background: rgba(255,107,53,0.08); color: #FF6B35; }
+ .app-card[href*="markdox"] .app-tag { background: rgba(124,92,252,0.08); color: #7C5CFC; }
+ .app-card[href*="reporead"] .app-tag { background: rgba(255,186,8,0.1); color: #D49600; }
+ .app-card[href*="diffsnap"] .app-tag { background: rgba(0,201,167,0.08); color: #00A88A; }
+
+ .arrow { color: var(--text-dim); font-size: 16px; transition: transform 0.2s; }
+ .app-card:hover .arrow { transform: translateX(3px); color: var(--accent); }
+
+ .footer {
+ margin-top: 56px;
+ padding-top: 20px;
+ border-top: 1px solid var(--border);
+ text-align: center;
+ }
+ .footer p { font-size: 13px; color: var(--text-dim); }
+
+ @keyframes fadeIn {
+ from { opacity: 0; transform: translateY(12px); }
+ to { opacity: 1; transform: translateY(0); }
+ }
 </style>
 </head>
 <body>
@@ -42,43 +164,43 @@
  <h1>Apps <span>/</span></h1>
  <p class="sub">Free browser-based tools. No signup, no server, no data leaves your machine.</p>
  <div class="apps">
-  <a class="app-card" href="/apps/html-to-pdf/" style="animation-delay:0.05s">
-   <div class="app-icon">📄</div>
-   <div class="app-meta">
-    <div class="app-name">HTML → PDF</div>
-    <div class="app-desc">Convert HTML files to pixel-perfect PDFs</div>
-   </div>
-   <span class="app-tag">converter</span>
-   <span class="arrow">→</span>
-  </a>
-  <a class="app-card" href="/apps/markdox/" style="animation-delay:0.1s">
-   <div class="app-icon">📝</div>
-   <div class="app-meta">
-    <div class="app-name">MarkDox</div>
-    <div class="app-desc">Markdown to beautiful PDF — write, preview, export</div>
-   </div>
-   <span class="app-tag">converter</span>
-   <span class="arrow">→</span>
-  </a>
-  <a class="app-card" href="/apps/reporead/" style="animation-delay:0.15s">
-    <div class="app-icon">🔍</div>
-    <div class="app-meta">
-      <div class="app-name">RepoRead</div>
-      <div class="app-desc">Paste GitHub URL, get instant repo breakdown & stats</div>
-    </div>
-    <span class="app-tag">developer</span>
-    <span class="arrow">→</span>
-  </a>
-  <a class="app-card" href="/apps/diffsnap/" style="animation-delay:0.2s">
-    <div class="app-icon">🔀</div>
-    <div class="app-meta">
-      <div class="app-name">DiffSnap</div>
-      <div class="app-desc">Visual JSON/YAML diff — compare configs instantly</div>
-    </div>
-    <span class="app-tag">developer</span>
-    <span class="arrow">→</span>
-  </a>
-  </div>
+ <a class="app-card" href="/apps/html-to-pdf/" style="animation-delay:0.05s">
+ <div class="app-icon">📄</div>
+ <div class="app-meta">
+ <div class="app-name">HTML → PDF</div>
+ <div class="app-desc">Convert HTML files to pixel-perfect PDFs</div>
+ </div>
+ <span class="app-tag">converter</span>
+ <span class="arrow">→</span>
+ </a>
+ <a class="app-card" href="/apps/markdox/" style="animation-delay:0.1s">
+ <div class="app-icon">📝</div>
+ <div class="app-meta">
+ <div class="app-name">MarkDox</div>
+ <div class="app-desc">Markdown to beautiful PDF — write, preview, export</div>
+ </div>
+ <span class="app-tag">converter</span>
+ <span class="arrow">→</span>
+ </a>
+ <a class="app-card" href="/apps/reporead/" style="animation-delay:0.15s">
+ <div class="app-icon">🔍</div>
+ <div class="app-meta">
+ <div class="app-name">RepoRead</div>
+ <div class="app-desc">Paste GitHub URL, get instant repo breakdown & stats</div>
+ </div>
+ <span class="app-tag">developer</span>
+ <span class="arrow">→</span>
+ </a>
+ <a class="app-card" href="/apps/diffsnap/" style="animation-delay:0.2s">
+ <div class="app-icon">🔀</div>
+ <div class="app-meta">
+ <div class="app-name">DiffSnap</div>
+ <div class="app-desc">Visual JSON/YAML diff — compare configs instantly</div>
+ </div>
+ <span class="app-tag">developer</span>
+ <span class="arrow">→</span>
+ </a>
+ </div>
  <div class="footer"><p>Built by Samyak Bansal</p></div>
 </div>
 </body>
