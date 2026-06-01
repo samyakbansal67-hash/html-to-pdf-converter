@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TokenScope — JWT Decoder & Inspector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0e0e0e;
+  --surface: #171717;
+  --border: #2a2a2a;
+  --accent: #f472b6;
+  --accent-soft: rgba(244,114,182,0.1);
+  --accent-border: rgba(244,114,182,0.3);
+  --text: #e4e4e7;
+  --text-dim: #71717a;
+  --red: #ef4444;
+  --red-soft: rgba(239,68,68,0.1);
+  --green: #22c55e;
+  --green-soft: rgba(34,197,94,0.1);
+  --yellow: #f59e0b;
+  --yellow-soft: rgba(245,158,11,0.1);
+  --code-bg: #1c1c1c;
+  --radius: 10px;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+.container { max-width: 780px; margin: 0 auto; padding: 48px 24px 96px; }
+
+/* Header */
+.header { margin-bottom: 32px; }
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.logo h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+.logo h1 span { color: var(--accent); }
+.tagline {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-left: 46px;
+}
+
+/* Input area */
+.input-section { margin-bottom: 24px; }
+.input-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.jwt-input {
+  width: 100%;
+  min-height: 100px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+  word-break: break-all;
+}
+.jwt-input:focus { border-color: var(--accent); }
+.jwt-input::placeholder { color: var(--text-dim); opacity: 0.6; }
+
+.input-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn:hover { border-color: var(--accent-border); color: var(--accent); background: var(--accent-soft); }
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0e0e0e;
+  font-weight: 600;
+}
+.btn-primary:hover { opacity: 0.9; background: var(--accent); color: #0e0e0e; }
+
+/* Status bar */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid;
+  transition: all 0.3s;
+}
+.status-bar.valid {
+  background: var(--green-soft);
+  border-color: rgba(34,197,94,0.25);
+  color: var(--green);
+}
+.status-bar.expired {
+  background: var(--red-soft);
+  border-color: rgba(239,68,68,0.25);
+  color: var(--red);
+}
+.status-bar.warning {
+  background: var(--yellow-soft);
+  border-color: rgba(245,158,11,0.25);
+  color: var(--yellow);
+}
+.status-bar.invalid {
+  background: var(--red-soft);
+  border-color: rgba(239,68,68,0.25);
+  color: var(--red);
+}
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-bar.valid .status-dot { background: var(--green); box-shadow: 0 0 8px rgba(34,197,94,0.5); }
+.status-bar.expired .status-dot { background: var(--red); box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+.status-bar.warning .status-dot { background: var(--yellow); box-shadow: 0 0 8px rgba(245,158,11,0.5); }
+.status-bar.invalid .status-dot { background: var(--red); box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+
+/* Decoded sections */
+.section { margin-bottom: 20px; }
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-title .tag {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.code-block {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.7;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* Syntax highlighting */
+.json-key { color: #93c5fd; }
+.json-string { color: #86efac; }
+.json-number { color: #fbbf24; }
+.json-bool { color: #c084fc; }
+.json-null { color: #71717a; }
+.json-brace { color: #71717a; }
+.json-comma { color: #52525b; }
+
+/* Claims table */
+.claims-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.claim-row {
+  display: contents;
+}
+.claim-row .claim-key {
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  white-space: nowrap;
+  background: rgba(244,114,182,0.03);
+}
+.claim-row .claim-val {
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  word-break: break-word;
+}
+.claim-row:last-child .claim-key,
+.claim-row:last-child .claim-val { border-bottom: none; }
+.claim-val .date-human {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.claim-val .time-diff {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+.time-diff.expired { color: var(--red); }
+.time-diff.valid { color: var(--green); }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--text-dim);
+}
+.empty-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.empty-desc { font-size: 13px; line-height: 1.6; }
+
+/* Results wrapper (hidden by default) */
+.results { display: none; }
+.results.active { display: block; }
+
+/* Signature section */
+.sig-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.sig-note .sig-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .container { padding: 32px 16px 64px; }
+  .claims-grid { grid-template-columns: 1fr; }
+  .claim-row .claim-key { border-right: none; border-bottom: none !important; padding-bottom: 4px; }
+  .claim-row .claim-val { padding-top: 2px; }
+}
+
+/* Copy toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent);
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  z-index: 100;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🔑</div>
+      <h1>Token<span>Scope</span></h1>
+    </div>
+    <p class="tagline">JWT decoder & inspector — 100% client-side, tokens never leave your browser</p>
+  </div>
+
+  <div class="input-section">
+    <div class="input-label">Paste JWT Token</div>
+    <textarea class="jwt-input" id="jwtInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" spellcheck="false"></textarea>
+    <div class="input-actions">
+      <button class="btn btn-primary" onclick="decode()">🔓 Decode</button>
+      <button class="btn" onclick="loadSample()">📋 Sample Token</button>
+      <button class="btn" onclick="clearAll()">✕ Clear</button>
+    </div>
+  </div>
+
+  <div class="results" id="results">
+    <div id="statusBar"></div>
+
+    <div class="section" id="headerSection">
+      <div class="section-header">
+        <div class="section-title">Header <span class="tag">JOSE</span></div>
+        <button class="btn" onclick="copyJSON('header')">📋 Copy</button>
+      </div>
+      <div class="code-block" id="headerBlock"></div>
+    </div>
+
+    <div class="section" id="payloadSection">
+      <div class="section-header">
+        <div class="section-title">Payload <span class="tag">Claims</span></div>
+        <button class="btn" onclick="copyJSON('payload')">📋 Copy</button>
+      </div>
+      <div class="code-block" id="payloadBlock"></div>
+    </div>
+
+    <div class="section" id="claimsSection">
+      <div class="section-header">
+        <div class="section-title">Decoded Claims</div>
+      </div>
+      <div class="claims-grid" id="claimsGrid"></div>
+    </div>
+
+    <div class="section">
+      <div class="sig-note">
+        <span class="sig-icon">⚠️</span>
+        <span>TokenScope <strong>does not verify signatures</strong> — it only decodes the token. A decoded JWT is not a validated JWT. Always verify tokens server-side with your secret/key.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">🔐</div>
+    <div class="empty-title">Paste a JWT to inspect</div>
+    <div class="empty-desc">Decode header & payload, check expiration status,<br>and view human-readable claim values — all in your browser.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+const CLAIM_LABELS = {
+  iss: 'Issuer',
+  sub: 'Subject',
+  aud: 'Audience',
+  exp: 'Expiration',
+  iat: 'Issued At',
+  nbf: 'Not Before',
+  jti: 'JWT ID',
+  name: 'Name',
+  email: 'Email',
+  role: 'Role',
+  scope: 'Scope',
+  azp: 'Authorized Party',
+  nonce: 'Nonce',
+  auth_time: 'Auth Time',
+  at_hash: 'Access Token Hash',
+  c_hash: 'Code Hash',
+  typ: 'Token Type',
+  alg: 'Algorithm'
+};
+
+let decodedHeader = null;
+let decodedPayload = null;
+
+function base64UrlDecode(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = str.length % 4;
+  if (pad) str += '='.repeat(4 - pad);
+  try {
+    return decodeURIComponent(atob(str).split('').map(c =>
+      '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    ).join(''));
+  } catch {
+    return atob(str);
+  }
+}
+
+function parseJWT(token) {
+  const parts = token.trim().split('.');
+  if (parts.length < 2 || parts.length > 3) return null;
+  try {
+    const header = JSON.parse(base64UrlDecode(parts[0]));
+    const payload = JSON.parse(base64UrlDecode(parts[1]));
+    return { header, payload, signature: parts[2] || '' };
+  } catch {
+    return null;
+  }
+}
+
+function syntaxHighlight(json) {
+  const str = JSON.stringify(json, null, 2);
+  return str.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+    let cls = 'json-number';
+    if (/^"/.test(match)) {
+      if (/:$/.test(match)) {
+        cls = 'json-key';
+      } else {
+        cls = 'json-string';
+      }
+    } else if (/true|false/.test(match)) {
+      cls = 'json-bool';
+    } else if (/null/.test(match)) {
+      cls = 'json-null';
+    }
+    return `<span class="${cls}">${match}</span>`;
+  }).replace(/[{}[\]]/g, m => `<span class="json-brace">${m}</span>`);
+}
+
+function formatDate(timestamp) {
+  if (!timestamp || isNaN(timestamp)) return '—';
+  const d = new Date(timestamp * 1000);
+  return d.toLocaleString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short'
+  });
+}
+
+function timeDiff(timestamp) {
+  if (!timestamp || isNaN(timestamp)) return '';
+  const now = Date.now() / 1000;
+  const diff = timestamp - now;
+  const absDiff = Math.abs(diff);
+  const isPast = diff < 0;
+
+  let text;
+  if (absDiff < 60) text = `${Math.round(absDiff)}s`;
+  else if (absDiff < 3600) text = `${Math.round(absDiff / 60)}m`;
+  else if (absDiff < 86400) text = `${Math.round(absDiff / 3600)}h`;
+  else if (absDiff < 2592000) text = `${Math.round(absDiff / 86400)}d`;
+  else text = `${(absDiff / 2592000).toFixed(1)}mo`;
+
+  const cls = isPast ? 'expired' : 'valid';
+  const arrow = isPast ? 'ago' : 'from now';
+  return `<span class="time-diff ${cls}">${text} ${arrow}</span>`;
+}
+
+function getExpirationStatus(payload) {
+  if (!payload.exp) return { status: 'warning', text: 'No expiration claim (exp) — token lifetime is unbounded' };
+  const now = Date.now() / 1000;
+  if (payload.exp < now) {
+    const ago = timeDiff(payload.exp);
+    return { status: 'expired', text: `Token expired ${ago.replace(/<[^>]*>/g, '')}` };
+  }
+  const remaining = timeDiff(payload.exp);
+  return { status: 'valid', text: `Token is valid — expires ${remaining.replace(/<[^>]*>/g, '')}` };
+}
+
+function decode() {
+  const input = document.getElementById('jwtInput').value.trim();
+  if (!input) return;
+
+  const result = parseJWT(input);
+  if (!result) {
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('emptyState').innerHTML = `
+      <div class="empty-icon">❌</div>
+      <div class="empty-title">Invalid JWT</div>
+      <div class="empty-desc">Could not decode this token. Make sure it's a valid<br>JWT with the format: <code style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px">header.payload.signature</code></div>
+    `;
+    return;
+  }
+
+  decodedHeader = result.header;
+  decodedPayload = result.payload;
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('results').classList.add('active');
+
+  // Status bar
+  const exp = getExpirationStatus(result.payload);
+  document.getElementById('statusBar').innerHTML = `
+    <div class="status-bar ${exp.status}">
+      <span class="status-dot"></span>
+      ${exp.text}
+    </div>
+  `;
+
+  // Header
+  document.getElementById('headerBlock').innerHTML = syntaxHighlight(result.header);
+
+  // Payload
+  document.getElementById('payloadBlock').innerHTML = syntaxHighlight(result.payload);
+
+  // Claims grid
+  const claimKeys = ['iss', 'sub', 'aud', 'exp', 'iat', 'nbf', 'jti'];
+  const knownClaims = {};
+  const otherClaims = {};
+
+  for (const key of claimKeys) {
+    if (result.payload[key] !== undefined) {
+      knownClaims[key] = result.payload[key];
+    }
+  }
+
+  for (const [key, val] of Object.entries(result.payload)) {
+    if (!claimKeys.includes(key)) {
+      otherClaims[key] = val;
+    }
+  }
+
+  let claimsHTML = '';
+
+  for (const [key, val] of Object.entries(knownClaims)) {
+    claimsHTML += renderClaimRow(key, val);
+  }
+
+  if (Object.keys(otherClaims).length > 0) {
+    for (const [key, val] of Object.entries(otherClaims)) {
+      claimsHTML += renderClaimRow(key, val);
+    }
+  }
+
+  // Also show algorithm from header
+  if (result.header.alg) {
+    claimsHTML = renderClaimRow('alg', result.header.alg, true) + claimsHTML;
+  }
+  if (result.header.typ) {
+    claimsHTML = renderClaimRow('typ', result.header.typ, true) + claimsHTML;
+  }
+
+  document.getElementById('claimsGrid').innerHTML = claimsHTML;
+}
+
+function renderClaimRow(key, val, isHeader) {
+  const label = CLAIM_LABELS[key] || key;
+  const isTimestamp = ['exp', 'iat', 'nbf', 'auth_time'].includes(key);
+
+  let valDisplay = '';
+  if (typeof val === 'object') {
+    valDisplay = `<span class="json-string">${escapeHTML(JSON.stringify(val))}</span>`;
+  } else {
+    valDisplay = escapeHTML(String(val));
+  }
+
+  let dateHTML = '';
+  if (isTimestamp && typeof val === 'number') {
+    dateHTML = `<span class="date-human">${formatDate(val)}</span>${timeDiff(val)}`;
+  }
+
+  const prefix = isHeader ? '<span style="color:var(--text-dim);font-size:10px;font-family:Inter,sans-serif">HEADER </span>' : '';
+  return `<div class="claim-row">
+    <div class="claim-key">${prefix}${escapeHTML(key)}<br><span style="font-family:Inter,sans-serif;font-size:10px;color:var(--text-dim);font-weight:400">${escapeHTML(label)}</span></div>
+    <div class="claim-val">${valDisplay}${dateHTML}</div>
+  </div>`;
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyJSON(section) {
+  const data = section === 'header' ? decodedHeader : decodedPayload;
+  if (!data) return;
+  navigator.clipboard.writeText(JSON.stringify(data, null, 2)).then(() => {
+    showToast('Copied to clipboard');
+  });
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+function loadSample() {
+  const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  const now = Math.floor(Date.now() / 1000);
+  const payload = btoa(JSON.stringify({
+    sub: '1234567890',
+    name: 'Jane Doe',
+    email: 'jane@example.com',
+    role: 'admin',
+    iss: 'auth.example.com',
+    aud: 'api.example.com',
+    iat: now - 3600,
+    exp: now + 3600,
+    nbf: now - 3600,
+    jti: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+  })).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  const sig = 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+  document.getElementById('jwtInput').value = `${header}.${payload}.${sig}`;
+  decode();
+}
+
+function clearAll() {
+  document.getElementById('jwtInput').value = '';
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('emptyState').style.display = 'block';
+  document.getElementById('emptyState').innerHTML = `
+    <div class="empty-icon">🔐</div>
+    <div class="empty-title">Paste a JWT to inspect</div>
+    <div class="empty-desc">Decode header & payload, check expiration status,<br>and view human-readable claim values — all in your browser.</div>
+  `;
+  decodedHeader = null;
+  decodedPayload = null;
+}
+
+// Auto-decode on paste
+document.getElementById('jwtInput').addEventListener('input', () => {
+  const val = document.getElementById('jwtInput').value.trim();
+  if (val.split('.').length >= 2 && val.length > 20) {
+    decode();
+  }
+});
+</script>
+</body>
+</html>

@@ -104,6 +104,7 @@
  .app-card[href*="reporead"] { border-left-color: #FFBA08; }
  .app-card[href*="diffsnap"] { border-left-color: #00C9A7; }
 .app-card[href*="cronforge"] { border-left-color: #f59e0b; }
+.app-card[href*="tokenscope"] { border-left-color: #f472b6; }
 
  .app-icon {
  width: 44px; height: 44px;
@@ -119,6 +120,7 @@
  .app-card[href*="reporead"] .app-icon { background: rgba(255,186,8,0.1); }
  .app-card[href*="diffsnap"] .app-icon { background: rgba(0,201,167,0.1); }
 .app-card[href*="cronforge"] .app-icon { background: rgba(245,158,11,0.1); }
+.app-card[href*="tokenscope"] .app-icon { background: rgba(244,114,182,0.1); }
 
  .app-meta { flex: 1; }
  .app-name {
@@ -143,6 +145,7 @@
  .app-card[href*="reporead"] .app-tag { background: rgba(255,186,8,0.1); color: #D49600; }
  .app-card[href*="diffsnap"] .app-tag { background: rgba(0,201,167,0.08); color: #00A88A; }
 .app-card[href*="cronforge"] .app-tag { background: rgba(245,158,11,0.08); color: #D49600; }
+.app-card[href*="tokenscope"] .app-tag { background: rgba(244,114,182,0.08); color: #e879a8; }
 
  .arrow { color: var(--text-dim); font-size: 16px; transition: transform 0.2s; }
  .app-card:hover .arrow { transform: translateX(3px); color: var(--accent); }
@@ -204,13 +207,22 @@
  <span class="arrow">→</span>
  </a>
  <a class="app-card" href="/apps/cronforge/" style="animation-delay:0.25s">
- <div class="app-icon">⏱</div>
- <div class="app-meta">
- <div class="app-name">CronForge</div>
- <div class="app-desc">Cron expression builder & tester — build, validate, visualize</div>
- </div>
- <span class="app-tag">developer</span>
- <span class="arrow">→</span>
+   <div class="app-icon">⏱</div>
+   <div class="app-meta">
+     <div class="app-name">CronForge</div>
+     <div class="app-desc">Cron expression builder & tester — build, validate, visualize</div>
+   </div>
+   <span class="app-tag">developer</span>
+   <span class="arrow">→</span>
+ </a>
+ <a class="app-card" href="/apps/tokenscope/" style="animation-delay:0.3s">
+   <div class="app-icon">🔑</div>
+   <div class="app-meta">
+     <div class="app-name">TokenScope</div>
+     <div class="app-desc">JWT decoder & inspector — decode, inspect, check expiration</div>
+   </div>
+   <span class="app-tag">security</span>
+   <span class="arrow">→</span>
  </a>
  </div>
  <div class="footer"><p>Built by Samyak Bansal</p></div>
